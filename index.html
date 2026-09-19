@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="项目文件门户：工具箱、Markdown 文档及仓库内容自动索引" />
+  <title>项目文件门户</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-light.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.umd.js"></script>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-solid: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --subtle: #98a2b3;
+      --border: #e6eaf0;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --warning: #d97706;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      --shadow-sm: 0 6px 20px rgba(15, 23, 42, 0.06);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --max-width: 1180px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1020;
+        --surface: rgba(18, 25, 43, 0.84);
+        --surface-solid: #12192b;
+        --text: #eef2ff;
+        --muted: #a7b0c2;
+        --subtle: #74809a;
+        --border: #273149;
+        --primary: #7aa2ff;
+        --primary-soft: #18233e;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+        --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.18);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.12), transparent 26rem),
+        radial-gradient(circle at 100% 20%, rgba(124, 58, 237, 0.10), transparent 26rem),
+        var(--bg);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max-width));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 68px 0 30px;
+    }
+
+    .hero-card {
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(79, 70, 229, 0.92));
+      color: #fff;
+      border-radius: 30px;
+      padding: clamp(28px, 5vw, 54px);
+      box-shadow: 0 24px 70px rgba(37, 99, 235, 0.24);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -60px;
+      top: -80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.10);
+      filter: blur(4px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .hero h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      line-height: 1.06;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(15px, 2vw, 18px);
+      line-height: 1.7;
+      color: rgba(255,255,255,.88);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .controls {
+      margin: 22px 0 28px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap span {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--subtle);
+      pointer-events: none;
+      font-size: 18px;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 16px 14px 44px;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .refresh {
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 13px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .refresh:hover { transform: translateY(-1px); border-color: var(--primary); }
+    .refresh:disabled { opacity: .6; cursor: wait; transform: none; }
+
+    .section {
+      margin: 24px 0 34px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-desc {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(12px);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(37, 99, 235, .28);
+      box-shadow: var(--shadow);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--primary-soft);
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 15px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(148, 163, 184, .10);
+      border: 1px solid var(--border);
+    }
+
+    .card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 17px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .folder {
+      margin: 0 0 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .folder-head {
+      padding: 17px 19px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .folder-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      min-width: 0;
+    }
+
+    .folder-title span:last-child {
+      overflow-wrap: anywhere;
+    }
+
+    .folder-count {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .file-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background .18s ease;
+    }
+
+    .file-item:nth-child(odd) { border-right: 1px solid var(--border); }
+    .file-item:hover { background: var(--primary-soft); }
+    .file-item:last-child,
+    .file-item:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+
+    .file-main {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .file-icon {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(148, 163, 184, .10);
+    }
+
+    .file-name {
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .file-path {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    .file-link {
+      flex: 0 0 auto;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .empty, .loading, .error {
+      margin: 28px 0;
+      padding: 32px 20px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .error { border-style: solid; }
+
+    .footer {
+      padding: 14px 0 42px;
+      color: var(--subtle);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .footer a { color: var(--primary); font-weight: 700; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      padding: 18px;
+      background: rgba(15, 23, 42, .56);
+      backdrop-filter: blur(7px);
+    }
+
+    .modal.open { display: grid; place-items: center; }
+
+    .modal-dialog {
+      width: min(100%, 980px);
+      max-height: min(88vh, 900px);
+      background: var(--surface-solid);
+      color: var(--text);
+      border-radius: 22px;
+      box-shadow: 0 30px 100px rgba(0,0,0,.32);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-title {
+      min-width: 0;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-close {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+
+    .modal-body {
+      padding: 22px;
+      overflow: auto;
+    }
+
+    .markdown-body {
+      color: var(--text);
+      background: transparent;
+    }
+
+    .markdown-body pre {
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+
+    .markdown-loading {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 20px;
+    }
+
+    code, pre, .file-path {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      .container { width: min(calc(100% - 20px), var(--max-width)); }
+      .hero { padding-top: 38px; }
+      .controls { grid-template-columns: 1fr; }
+      .grid, .file-list { grid-template-columns: 1fr; }
+      .file-item:nth-child(odd) { border-right: 0; }
+      .file-item:last-child { border-bottom: 0; }
+      .file-item:not(:last-child) { border-bottom: 1px solid var(--border); }
+      .hero-card { border-radius: 24px; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="container">
+      <section class="hero">
+        <div class="hero-card">
+          <div class="eyebrow">🗂️ GitHub Pages 文件门户</div>
+          <h1>项目首页</h1>
+          <p>
+            一个自动同步仓库内容的入口页。工具箱、Markdown 文档和后续新增文件都会从
+            GitHub 仓库自动读取，无需每次手工修改首页。
+          </p>
+          <div class="hero-meta">
+            <span class="pill" id="statusPill">⏳ 正在读取仓库…</span>
+            <span class="pill" id="countPill">📦 文件统计加载中</span>
+            <span class="pill">🔄 打开页面时自动更新</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="搜索与刷新">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="searchInput" class="search" type="search"
+            placeholder="搜索文件名、路径、目录…" autocomplete="off" />
+        </div>
+        <button id="refreshBtn" class="refresh" type="button">↻ 刷新目录</button>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">工具箱</h2>
+            <p class="section-desc">可直接在当前网站打开的 HTML 工具。</p>
+          </div>
+        </div>
+        <div id="toolGrid" class="grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Markdown 文档</h2>
+            <p class="section-desc">点击文档会在当前页面内打开，并自动渲染 Markdown。</p>
+          </div>
+        </div>
+        <div id="docFolders"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">其他仓库内容</h2>
+            <p class="section-desc">README、JSON、TXT、图片等文件会自动归档到这里。</p>
+          </div>
+        </div>
+        <div id="otherFolders"></div>
+      </section>
+
+      <div id="globalState" class="loading">正在读取 GitHub 文件树…</div>
+
+      <footer class="footer">
+        数据来源：
+        <a href="https://github.com/test-qq-mail-bot/test-qq-mail-bot.github.io" target="_blank" rel="noopener">
+          test-qq-mail-bot/test-qq-mail-bot.github.io
+        </a>
+        <br />
+        首页通过 GitHub Contents / Git Trees API 动态发现文件，因此新增文件后无需修改本页代码。
+      </footer>
+    </div>
+  </main>
+
+  <div id="mdModal" class="modal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div id="modalTitle" class="modal-title">Markdown 文档</div>
+        <button id="modalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <article id="markdownBody" class="markdown-body">
+          <div class="markdown-loading">正在加载文档…</div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ACTUAL_REPO = "test-qq-mail-bot/test-qq-mail-bot.github.io";
+    const BRANCH = "main";
+    const TREE_API = "https://api.github.com/repos/" + ACTUAL_REPO + "/git/trees/" + BRANCH + "?recursive=1";
+    const RAW_BASE = "https://raw.githubusercontent.com/" + ACTUAL_REPO + "/" + BRANCH + "/";
+
+    const state = {
+      files: [],
+      loading: false
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function ext(path) {
+      const name = path.split("/").pop() || "";
+      const i = name.lastIndexOf(".");
+      return i > -1 ? name.slice(i + 1).toLowerCase() : "";
+    }
+
+    function nameOf(path) {
+      return path.split("/").pop() || path;
+    }
+
+    function parentOf(path) {
+      const parts = path.split("/");
+      parts.pop();
+      return parts.join("/") || "根目录";
+    }
+
+    function iconFor(path) {
+      const e = ext(path);
+      if (e === "html" || e === "htm") return "🛠️";
+      if (e === "md" || e === "markdown") return "📘";
+      if (e === "json") return "🧾";
+      if (e === "js" || e === "ts") return "📜";
+      if (e === "css") return "🎨";
+      if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(e)) return "🖼️";
+      if (["zip", "7z", "rar"].includes(e)) return "🗜️";
+      return "📄";
+    }
+
+    function typeLabel(path) {
+      const e = ext(path);
+      if (["html", "htm"].includes(e)) return "HTML 工具";
+      if (["md", "markdown"].includes(e)) return "Markdown";
+      return e ? e.toUpperCase() : "文件";
+    }
+
+    function humanPath(path) {
+      return path.replaceAll("/", " / ");
+    }
+
+    function matches(file, keyword) {
+      if (!keyword) return true;
+      const hay = (file.path + " " + nameOf(file.path)).toLowerCase();
+      return hay.includes(keyword.toLowerCase());
+    }
+
+    function filteredFiles() {
+      const keyword = $("searchInput").value.trim();
+      return state.files.filter(f => matches(f, keyword));
+    }
+
+    function makeCard(file) {
+      const e = ext(file.path);
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const actionHtml = e === "md" || e === "markdown"
+        ? '<a class="card-action" href="#md=' + encodeURIComponent(file.path) + '" data-md="' + encodeURIComponent(file.path) + '">阅读文档 →</a>'
+        : e === "html" || e === "htm"
+          ? '<a class="card-action" href="' + encodeURI(file.path) + '">打开工具 →</a>'
+          : '<a class="card-action" href="' + RAW_BASE + file.path.split("/").map(encodeURIComponent).join("/") + '" target="_blank" rel="noopener">打开文件 →</a>';
+
+      card.innerHTML =
+        '<div class="card-icon">' + iconFor(file.path) + '</div>' +
+        '<h3>' + escapeHtml(nameOf(file.path)) + '</h3>' +
+        '<p>' + escapeHtml(humanPath(file.path)) + '</p>' +
+        '<div class="card-meta">' +
+          '<span class="badge">' + escapeHtml(typeLabel(file.path)) + '</span>' +
+        '</div>' +
+        actionHtml;
+
+      return card;
+    }
+
+    function renderToolGrid(files) {
+      const grid = $("toolGrid");
+      grid.innerHTML = "";
+      const tools = files.filter(f => ["html", "htm"].includes(ext(f.path)));
+
+      if (!tools.length) {
+        grid.innerHTML = '<div class="empty">暂时没有发现 HTML 工具。</div>';
+        return;
+      }
+
+      tools.sort((a, b) => a.path.localeCompare(b.path));
+      tools.forEach(file => grid.appendChild(makeCard(file)));
+    }
+
+    function groupByFolder(files) {
+      const groups = new Map();
+      files.forEach(file => {
+        const folder = parentOf(file.path);
+        if (!groups.has(folder)) groups.set(folder, []);
+        groups.get(folder).push(file);
+      });
+      return [...groups.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+    }
+
+    function renderFolderSections(targetId, files, emptyText) {
+      const target = $(targetId);
+      target.innerHTML = "";
+
+      if (!files.length) {
+        target.innerHTML = '<div class="empty">' + escapeHtml(emptyText) + '</div>';
+        return;
+      }
+
+      groupByFolder(files).forEach(([folder, group]) => {
+        const box = document.createElement("div");
+        box.className = "folder";
+
+        const head = document.createElement("div");
+        head.className = "folder-head";
+        head.innerHTML =
+          '<div class="folder-title"><span>📁</span><span>' + escapeHtml(folder) + '</span></div>' +
+          '<div class="folder-count">' + group.length + ' 个文件</div>';
+
+        const list = document.createElement("div");
+        list.className = "file-list";
+
+        group
+          .sort((a,b) => a.path.localeCompare(b.path))
+          .forEach(file => {
+            const row = document.createElement("div");
+            row.className = "file-item";
+            const e = ext(file.path);
+
+            let action;
+            if (e === "md" || e === "markdown") {
+              action = '<a class="file-link" href="#md=' + encodeURIComponent(file.path) +
+                '" data-md="' + encodeURIComponent(file.path) + '">阅读</a>';
+            } else if (e === "html" || e === "htm") {
+              action = '<a class="file-link" href="' + encodeURI(file.path) + '">打开</a>';
+            } else {
+              action = '<a class="file-link" href="' + RAW_BASE +
+                file.path.split("/").map(encodeURIComponent).join("/") +
+                '" target="_blank" rel="noopener">查看</a>';
+            }
+
+            row.innerHTML =
+              '<div class="file-main">' +
+                '<div class="file-icon">' + iconFor(file.path) + '</div>' +
+                '<div>' +
+                  '<div class="file-name">' + escapeHtml(nameOf(file.path)) + '</div>' +
+                  '<div class="file-path">' + escapeHtml(file.path) + '</div>' +
+                '</div>' +
+              '</div>' +
+              action;
+
+            list.appendChild(row);
+          });
+
+        box.appendChild(head);
+        box.appendChild(list);
+        target.appendChild(box);
+      });
+    }
+
+    function render() {
+      const files = filteredFiles();
+      const tools = files.filter(f => ["html", "htm"].includes(ext(f.path)));
+      const docs = files.filter(f => ["md", "markdown"].includes(ext(f.path)));
+      const others = files.filter(f => !["html", "htm", "md", "markdown"].includes(ext(f.path)));
+
+      renderToolGrid(tools);
+      renderFolderSections("docFolders", docs, "暂时没有发现 Markdown 文档。");
+      renderFolderSections("otherFolders", others, "暂时没有其他类型的仓库文件。");
+
+      const keyword = $("searchInput").value.trim();
+      $("globalState").className = "loading";
+      $("globalState").textContent = keyword
+        ? "当前搜索匹配 " + files.length + " 个文件。"
+        : "当前索引 " + state.files.length + " 个文件。";
+
+      $("countPill").textContent =
+        "📦 " + tools.length + " 工具 · " + docs.length + " 文档 · " + others.length + " 其他";
+    }
+
+    async function loadTree() {
+      if (state.loading) return;
+
+      state.loading = true;
+      $("refreshBtn").disabled = true;
+      $("refreshBtn").textContent = "读取中…";
+      $("statusPill").textContent = "⏳ 正在读取 GitHub 文件树…";
+
+      try {
+        const response = await fetch(TREE_API, {
+          headers: { "Accept": "application/vnd.github+json" },
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error("GitHub API 返回 " + response.status);
+        }
+
+        const data = await response.json();
+        state.files = (data.tree || [])
+          .filter(item => item.type === "blob")
+          .map(item => ({ path: item.path, sha: item.sha, size: item.size || 0 }));
+
+        // 首页不把自己当作“其他仓库内容”展示。
+        state.files = state.files.filter(file => file.path.toLowerCase() !== "index.html");
+
+        render();
+        $("statusPill").textContent = "✅ 已同步 · " + new Date().toLocaleTimeString("zh-CN");
+      } catch (error) {
+        console.error(error);
+        $("statusPill").textContent = "⚠️ 读取失败";
+        $("globalState").className = "error";
+        $("globalState").innerHTML =
+          "无法读取 GitHub 文件树。<br><span style='font-size:12px'>" +
+          escapeHtml(error.message) +
+          "</span>";
+      } finally {
+        state.loading = false;
+        $("refreshBtn").disabled = false;
+        $("refreshBtn").textContent = "↻ 刷新目录";
+      }
+    }
+
+    async function openMarkdown(path) {
+      const modal = $("mdModal");
+      const body = $("markdownBody");
+      const title = $("modalTitle");
+
+      title.textContent = nameOf(path);
+      body.innerHTML = '<div class="markdown-loading">正在加载 <code>' +
+        escapeHtml(path) + '</code> …</div>';
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      try {
+        const response = await fetch(RAW_BASE + path.split("/").map(encodeURIComponent).join("/"), {
+          cache: "no-store"
+        });
+        if (!response.ok) throw new Error("文档读取失败：" + response.status);
+        const markdown = await response.text();
+
+        if (window.marked && window.marked.parse) {
+          window.marked.setOptions({
+            gfm: true,
+            breaks: true
+          });
+          body.innerHTML = window.marked.parse(markdown);
+        } else {
+          const pre = document.createElement("pre");
+          pre.textContent = markdown;
+          body.innerHTML = "";
+          body.appendChild(pre);
+        }
+      } catch (error) {
+        body.innerHTML =
+          '<div class="error">文档加载失败：' + escapeHtml(error.message) + '</div>';
+      }
+    }
+
+    function closeMarkdown() {
+      $("mdModal").classList.remove("open");
+      $("mdModal").setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      if (location.hash.startsWith("#md=")) {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function handleHash() {
+      if (!location.hash.startsWith("#md=")) return;
+      const path = decodeURIComponent(location.hash.slice(4));
+      if (!path || !state.files.some(f => f.path === path)) return;
+      openMarkdown(path);
+    }
+
+    $("searchInput").addEventListener("input", render);
+    $("refreshBtn").addEventListener("click", loadTree);
+    $("modalClose").addEventListener("click", closeMarkdown);
+    $("mdModal").addEventListener("click", (event) => {
+      if (event.target === $("mdModal")) closeMarkdown();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMarkdown();
+    });
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-md]");
+      if (!link) return;
+      event.preventDefault();
+      const path = decodeURIComponent(link.dataset.md);
+      history.pushState(null, "", "#md=" + encodeURIComponent(path));
+      openMarkdown(path);
+    });
+    window.addEventListener("popstate", handleHash);
+
+    // 某些浏览器在首次页面加载时会先执行脚本，再异步加载 marked。
+    // 首页主体不依赖 marked，因此即使 CDN 暂时不可用，文件索引仍然正常。
+    loadTree().then(handleHash);
+  </script>
+</body>
+</html>
