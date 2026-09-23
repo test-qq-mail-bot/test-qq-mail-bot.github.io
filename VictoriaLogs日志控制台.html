@@ -515,8 +515,8 @@ function buildDeviceModel(){
   return ordered;
 }
 function extractIfaceState(msg){
-  var s=String(msg||''),ifs=rowInterfaces(s),out=[],state=/\bdown\b/i.test(s)?'down':(/\bup\b/i.test(s)?'up':'');
-  if(!state)return out;
+  var s=String(msg||''),ifs=rowInterfaces(s),out=[],down=/\b(?:down|failed|fault|administratively down)\b/i.test(s),up=/\b(?:up|line protocol is up)\b/i.test(s),state=down?'down':(up?'up':'');
+  if(!state||!ifs.length)return out;
   for(var i=0;i<ifs.length;i++)out.push({iface:ifs[i],state:state});
   return out;
 }
@@ -541,11 +541,18 @@ function buildRootClues(){
     for(var ai=0;ai<abn.length;ai++){var d=abn[ai].t-cf.t;if(abn[ai].host===cf.host&&d>=0&&d<=180000&&d<bestDelta){best=abn[ai];bestDelta=d}}
     if(best)clues.push({level:'warn',tag:'变更先于异常',title:cf.host+' / '+best.label,detail:'配置/命令类日志后约 '+Math.round(bestDelta/1000)+'s 出现 '+best.label+'；建议核对变更记录。',time:cf.t});
   }
-  for(var i2=0;i2<abn.length;i2++){
-    var base=abn[i2],hosts={};hosts[base.host]=1;
-    for(var j2=i2+1;j2<abn.length;j2++){if(abn[j2].t-base.t>60000)break;if(abn[j2].sig===base.sig)hosts[abn[j2].host]=1}
-    var hc=Object.keys(hosts).length;
-    if(hc>=3)clues.push({level:'warn',tag:'同步异常',title:base.label+' / '+hc+' 台设备',detail:'约 60 秒内出现同类异常；建议核对共同上联、区域链路或共享依赖。',time:base.t});
+  var syncWindows={};
+  for(var wi=0;wi<abn.length;wi++){
+    var ar0=abn[wi],sg0=ar0.sig;
+    if(!syncWindows[sg0])syncWindows[sg0]={rows:[],hosts:{}};
+    var win=syncWindows[sg0].rows,hm=syncWindows[sg0].hosts;
+    win.push(ar0);hm[ar0.host]=(hm[ar0.host]||0)+1;
+    while(win.length&&ar0.t-win[0].t>60000){var oldRow=win.shift();hm[oldRow.host]--;if(hm[oldRow.host]<=0)delete hm[oldRow.host];}
+    var hc=Object.keys(hm).length;
+    if(hc>=3&&(!syncWindows[sg0].last||ar0.t-syncWindows[sg0].last>60000)){
+      syncWindows[sg0].last=ar0.t;
+      clues.push({level:'warn',tag:'同步异常',title:(ar0.label||sg0)+' / '+hc+' 台设备',detail:'滚动 60 秒窗口内出现同类异常；建议核对共同上联、区域链路或共享依赖。',time:ar0.t});
+    }
   }
   clues.sort(function(a,b){return b.time-a.time});var seen={},out=[];
   for(var q=0;q<clues.length;q++){var sk=clues[q].tag+'|'+clues[q].title;if(!seen[sk]){seen[sk]=1;out.push(clues[q])}}
