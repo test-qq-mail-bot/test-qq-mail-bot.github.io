@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-23T15:13:08.968653+00:00",
+  "generatedAt": "2026-09-23T15:14:42.411382+00:00",
   "files": [
     {
       "path": "IP工具箱.html",
@@ -20,15 +20,7 @@
     },
     {
       "path": "VictoriaLogs日志控制台.html",
-      "size": 11309
-    },
-    {
-      "path": "vl-noc.css",
-      "size": 32869
-    },
-    {
-      "path": "vl-noc.js",
-      "size": 63663
+      "size": 107799
     }
   ]
 }
