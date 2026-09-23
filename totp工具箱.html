@@ -675,6 +675,17 @@
 
             // ==================== Load / Save ====================
             function loadAccounts() {
+                const demoAccount = {
+                    id: 'demo_totp_account',
+                    name: '演示账户（可删除）',
+                    issuer: 'TOTP Demo',
+                    secret: 'JBSWY3DPEHPK3PXP',
+                    digits: 6,
+                    algorithm: 'SHA-1',
+                    period: 30,
+                    isDemo: true
+                };
+
                 try {
                     const raw = localStorage.getItem(STORAGE_KEY);
                     if (raw) {
@@ -689,14 +700,20 @@
                             acc.digits = acc.digits || 6;
                             acc.algorithm = acc.algorithm || 'SHA-1';
                             acc.issuer = acc.issuer || '';
+                            acc.period = acc.period || 30;
                         });
                     } else {
-                        accounts = [];
+                        // First visit: add a public demo account so visitors can immediately
+                        // see a working TOTP code. This secret is for demonstration only.
+                        accounts = [demoAccount];
+                        saveAccounts();
                     }
                 } catch (e) {
                     console.warn('无法加载账户数据:', e);
-                    accounts = [];
+                    accounts = [demoAccount];
+                    saveAccounts();
                 }
+
                 previousPeriodMap = {};
                 accounts.forEach(acc => {
                     previousPeriodMap[acc.id] = -1;
