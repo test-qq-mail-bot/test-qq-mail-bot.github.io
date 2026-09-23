@@ -420,7 +420,7 @@ var RE_IFACE=/\b(GigabitEthernet|Ten-GigabitEthernet|XGigabitEthernet|Eth-Trunk|
 var RE_IP=/\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 var RE_VENDOR=[['hw','华为',/%%\d{2}[A-Z]+\//],['h3c','华三',/%%10[A-Z-]+\//],['cs','思科',/%[A-Z0-9_]+-\d-[A-Z0-9_]+:/],['rj','锐捷',/RUIJIE|ruijie/],['jn','Juniper',/rt_|mgd/],['fg','FortiGate',/devname=/],['zte','中兴',/ZTE|zte/],['ar','Arista',/Arista|arista/]];
 var RE_SEV_MAP={'3':/error|err|fail|critical/i,'2':/critical|panic/i,'4':/warn|warning/i,'6':/info/i,'7':/debug/i};
-var INTERNAL_KEYS={_sv:1,_vid:1,_vname:1,_html:1,_msg:1,_time:1,_stream:1,_stream_id:1,_sig:1,_sigLabel:1,_sigClass:1,_sigQuery:1};
+var INTERNAL_KEYS={_sv:1,_vid:1,_vname:1,_html:1,_msg:1,_time:1,_stream:1,_stream_id:1,_sig:1,_sigLabel:1,_sigClass:1,_sigQuery:1,_ifaceStates:1};
 
 var SCENES={
 net:{name:'数通设备',accent:'var(--net)',sevMode:'syslog',iface:true,
@@ -468,9 +468,9 @@ function renderIPChips(){var box=$('#ipchips');box.innerHTML='';$('#ipcnt').text
 
 function classifySignal(msg,sv){
   var m=String(msg||'').toLowerCase();
-  if(/(?:interface|ifnet|link[_ -]?state|line protocol|phy|link).*?(?:down|failed|fault)/i.test(m)||/(?:down|failed).*?(?:interface|port|link)/i.test(m))return{key:'link',label:'接口 DOWN',cls:'sig-bad',query:'~"(?i)(LINK_STATE|UPDOWN|IFNET|PHY|line protocol|interface|port).*(down|failed|fault)"'};
-  if(/\bbgp\b.*(?:peer|neighbor|nbr|adjacency|session).*(?:down|lost|reset|idle|active)/i.test(m))return{key:'bgp',label:'BGP 邻居',cls:'sig-bad',query:'~"(?i)bgp.*(peer|neighbor|nbr|adjacency|session).*(down|lost|reset|idle|active)"'};
-  if(/\bospf\b.*(?:nbr|neighbor|adjacency|state).*(?:down|full|change|reset|dead)/i.test(m))return{key:'ospf',label:'OSPF 邻居',cls:'sig-bad',query:'~"(?i)ospf.*(nbr|neighbor|adjacency|state).*(down|full|change|reset|dead)"'};
+  if(/%LINK-\d-|%LINEPROTO-\d-|%%\d+(?:LINK|IFNET)\b/i.test(msg)||/(?:interface|ifnet|link[_ -]?state|line protocol|phy|link).*?(?:down|failed|fault)/i.test(m)||/(?:down|failed).*?(?:interface|port|link)/i.test(m))return{key:'link',label:'接口 DOWN',cls:'sig-bad',query:'~"(?i)(LINK_STATE|UPDOWN|IFNET|PHY|line protocol|interface|port).*(down|failed|fault)"'};
+  if(/%BGP-\d-[A-Z]+|\bbgp\b.*(?:peer|neighbor|nbr|adjacency|session).*(?:down|lost|reset|idle|active)/i.test(m))return{key:'bgp',label:'BGP 邻居',cls:'sig-bad',query:'~"(?i)bgp.*(peer|neighbor|nbr|adjacency|session).*(down|lost|reset|idle|active)"'};
+  if(/%OSPF-\d-[A-Z]+|\bospf\b.*(?:nbr|neighbor|adjacency|state).*(?:down|full|change|reset|dead)/i.test(m))return{key:'ospf',label:'OSPF 邻居',cls:'sig-bad',query:'~"(?i)ospf.*(nbr|neighbor|adjacency|state).*(down|full|change|reset|dead)"'};
   if(/\b(?:stp|rstp|mstp)\b|loop|topology change/i.test(m))return{key:'stp',label:'STP / 环路',cls:'sig-warn',query:'~"(?i)(STP|RSTP|MSTP|loop|topology change)"'};
   if(/(?:fan|temperature|temp|power|psu|board|module|hardware|hw[_ -]?alarm).*(?:fault|fail|abnormal|alarm|high|low|overheat)/i.test(m))return{key:'hardware',label:'硬件告警',cls:'sig-bad',query:'~"(?i)(power|fan|temperature|temp|psu|board|module|hardware|hw_alarm).*(fault|fail|abnormal|alarm|high|low|overheat)"'};
   if(/(?:cpu|memory|mem|ram).*(?:usage|utilization|threshold|high|exceed|over)/i.test(m))return{key:'resource',label:'CPU / 内存',cls:'sig-warn',query:'~"(?i)(cpu|memory|mem|ram).*(usage|utilization|threshold|high|exceed|over)"'};
@@ -511,6 +511,50 @@ function buildDeviceModel(){
   }
   ordered.sort(function(a,b){return b.score-a.score||b.abn-a.abn||b.total-a.total});
   return ordered;
+}
+function extractIfaceState(msg){
+  var s=String(msg||''),ifs=rowInterfaces(s),out=[],state=/\bdown\b/i.test(s)?'down':(/\bup\b/i.test(s)?'up':'');
+  if(!state)return out;
+  for(var i=0;i<ifs.length;i++)out.push({iface:ifs[i],state:state});
+  return out;
+}
+function buildRootClues(){
+  var clues=[],ifaceMap={},configs=[],abn=[];
+  for(var i=0;i<S.rows.length;i++){
+    var e=S.rows[i],msg=e._msg!=null?String(e._msg):'',tm=new Date(e._time||e.time||'').getTime();if(isNaN(tm))continue;
+    var host=e.hostname||'未知设备',sig=e._sig||'';
+    if(sig==='config')configs.push({t:tm,host:host});
+    if(sig&&sig!=='config')abn.push({t:tm,host:host,label:e._sigLabel||sig,sig:sig});
+    var st=e._ifaceStates||extractIfaceState(msg);
+    for(var j=0;j<st.length;j++){var key=host+'|'+st[j].iface;if(!ifaceMap[key])ifaceMap[key]=[];ifaceMap[key].push({t:tm,state:st[j].state});}
+  }
+  abn.sort(function(a,b){return a.t-b.t});
+  for(var key in ifaceMap){
+    var ar=ifaceMap[key].sort(function(a,b){return a.t-b.t});var flips=0,start=ar[0].t,prev=ar[0].state,lastFlip=0;
+    for(var x=1;x<ar.length;x++){if(ar[x].t-start>300000){start=ar[x].t;flips=0;prev=ar[x].state}else if(ar[x].state!==prev){flips++;prev=ar[x].state;lastFlip=ar[x].t}}
+    if(flips>=2){var p=key.split('|');clues.push({level:'bad',tag:'链路抖动',title:p[0]+' / '+p[1],detail:'5 分钟内检测到至少 '+flips+' 次 UP↔DOWN；建议核对物理层、对端端口、错误包与上联链路。',time:lastFlip||ar[ar.length-1].t});}
+  }
+  for(var ci=0;ci<configs.length;ci++){
+    var cf=configs[ci],best=null,bestDelta=Infinity;
+    for(var ai=0;ai<abn.length;ai++){var d=abn[ai].t-cf.t;if(abn[ai].host===cf.host&&d>=0&&d<=180000&&d<bestDelta){best=abn[ai];bestDelta=d}}
+    if(best)clues.push({level:'warn',tag:'变更先于异常',title:cf.host+' / '+best.label,detail:'配置/命令类日志后约 '+Math.round(bestDelta/1000)+'s 出现 '+best.label+'；建议核对变更记录。',time:cf.t});
+  }
+  for(var i2=0;i2<abn.length;i2++){
+    var base=abn[i2],hosts={};hosts[base.host]=1;
+    for(var j2=i2+1;j2<abn.length;j2++){if(abn[j2].t-base.t>60000)break;if(abn[j2].sig===base.sig)hosts[abn[j2].host]=1}
+    var hc=Object.keys(hosts).length;
+    if(hc>=3)clues.push({level:'warn',tag:'同步异常',title:base.label+' / '+hc+' 台设备',detail:'约 60 秒内出现同类异常；建议核对共同上联、区域链路或共享依赖。',time:base.t});
+  }
+  clues.sort(function(a,b){return b.time-a.time});var seen={},out=[];
+  for(var q=0;q<clues.length;q++){var sk=clues[q].tag+'|'+clues[q].title;if(!seen[sk]){seen[sk]=1;out.push(clues[q])}}
+  return out.slice(0,8);
+}
+function renderRootClues(){
+  var box=$('#diag-root'),rows=buildRootClues();
+  if(!rows.length){box.innerHTML='<div class="dtable-empty">暂无明显时间/状态关联线索</div>';return}
+  var h='';
+  for(var i=0;i<rows.length;i++){var r=rows[i],cc=r.level==='bad'?'root-bad':'root-warn';h+='<div class="root-item"><span class="root-tag '+cc+'">'+esc(r.tag)+'</span><div class="root-main"><b>'+esc(r.title)+'</b><span>'+esc(r.detail)+' <em>'+formatDiagTime(r.time)+'</em></span></div></div>'}
+  box.innerHTML=h;
 }
 function buildEventModel(){
   var rows=[];
@@ -567,7 +611,7 @@ function updateDiagnosis(){
   if(first<Infinity&&last-first<120000&&Object.keys(dev).length>=2)notes.push('<div class="nextline"><b>时间关联：</b>多台设备在约 2 分钟内出现异常，值得核对共同上联/区域链路。</div>');
   notes.push('<div class="nextline"><b>下一步：</b>打开日志详情 → “聚焦该设备” → “关联分析 ±60s”，确认异常前后的上下文。</div>');
   next.innerHTML=notes.join('');
-  renderDiagnosisTables();
+  renderDiagnosisTables();renderRootClues();
 }
 function runDiagnosis(){
   if(S.scene!=='net'){toast('一键故障研判目前针对数通设备场景','warn');return}
@@ -635,7 +679,7 @@ function precompute(rows){
     var vid='oth',vname='其他';
     for(var vi=0;vi<RE_VENDOR.length;vi++){if(RE_VENDOR[vi][2].test(msg)){vid=RE_VENDOR[vi][0];vname=RE_VENDOR[vi][1];break}}
     e._vid=vid;e._vname=vname;
-    var sig=classifySignal(msg,sv);e._sig=sig?sig.key:'';e._sigLabel=sig?sig.label:'';e._sigClass=sig?sig.cls:'';e._sigQuery=sig?sig.query:'';
+    e._ifaceStates=extractIfaceState(msg);var sig=classifySignal(msg,sv);e._sig=sig?sig.key:'';e._sigLabel=sig?sig.label:'';e._sigClass=sig?sig.cls:'';e._sigQuery=sig?sig.query:'';
     var h=esc(msg);
     if(ifOn){h=h.replace(RE_IP,function(m){return'<span class="ipaddr">'+m+'</span>'});h=h.replace(RE_IFACE,function(m){return'<span class="iface">'+m+'</span>'})}
     if(hlOn){for(var ti=0;ti<termREs.length;ti++)h=h.replace(termREs[ti],'<mark>$1</mark>')}
