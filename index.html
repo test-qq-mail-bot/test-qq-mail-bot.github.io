@@ -573,7 +573,7 @@
           test-qq-mail-bot/test-qq-mail-bot.github.io
         </a>
         <br />
-        首页通过 GitHub Contents / Git Trees API 动态发现文件，因此新增文件后无需修改本页代码。
+        首页通过本地 files.json 文件索引发现仓库内容，GitHub Actions 会在仓库变更后自动更新索引。
       </footer>
     </div>
   </main>
@@ -791,19 +791,18 @@
       $("statusPill").textContent = "⏳ 正在读取 GitHub 文件树…";
 
       try {
-        const response = await fetch(TREE_API, {
-          headers: { "Accept": "application/vnd.github+json" },
+        const response = await fetch(FILE_INDEX, {
           cache: "no-store"
         });
 
         if (!response.ok) {
-          throw new Error("GitHub API 返回 " + response.status);
+          throw new Error("文件索引读取失败：" + response.status);
         }
 
         const data = await response.json();
-        state.files = (data.tree || [])
-          .filter(item => item.type === "blob")
-          .map(item => ({ path: item.path, sha: item.sha, size: item.size || 0 }));
+        state.files = (data.files || [])
+          .filter(item => item && item.path)
+          .map(item => ({ path: item.path, size: item.size || 0 }));
 
         // 首页不把自己当作“其他仓库内容”展示。
         state.files = state.files.filter(file => file.path.toLowerCase() !== "index.html");
@@ -815,7 +814,7 @@
         $("statusPill").textContent = "⚠️ 读取失败";
         $("globalState").className = "error";
         $("globalState").innerHTML =
-          "无法读取 GitHub 文件树。<br><span style='font-size:12px'>" +
+          "无法读取文件索引。<br><span style='font-size:12px'>" +
           escapeHtml(error.message) +
           "</span>";
       } finally {
