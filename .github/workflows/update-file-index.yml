@@ -1,0 +1,82 @@
+name: Update file index
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - files.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-file-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate files.json
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path(".")
+          excluded_dirs = {".git", ".github"}
+          excluded_files = {"index.html", "files.json"}
+
+          files = []
+
+          for path in root.rglob("*"):
+              if not path.is_file():
+                  continue
+
+              parts = path.parts
+              if any(part in excluded_dirs for part in parts):
+                  continue
+
+              relative = path.as_posix().lstrip("./")
+
+              if relative in excluded_files:
+                  continue
+
+              files.append({
+                  "path": relative,
+                  "size": path.stat().st_size
+              })
+
+          files.sort(key=lambda item: item["path"].lower())
+
+          payload = {
+              "version": 1,
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "files": files
+          }
+
+          Path("files.json").write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
+          )
+          PY
+
+      - name: Commit updated file index
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add files.json
+
+          if git diff --cached --quiet; then
+            echo "files.json is already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: update file index [skip ci]"
+          git push
