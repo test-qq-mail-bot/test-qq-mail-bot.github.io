@@ -674,43 +674,45 @@
             let previousPeriodMap = {}; // accountId -> last counter value
 
             // ==================== Load / Save ====================
-            function loadAccounts() {
-                const demoAccount = {
-                    id: 'demo_totp_account',
-                    name: '演示账户（可删除）',
-                    issuer: 'TOTP Demo',
-                    secret: 'JBSWY3DPEHPK3PXP',
-                    digits: 6,
-                    algorithm: 'SHA-1',
-                    period: 30,
-                    isDemo: true
-                };
+            const DEMO_ACCOUNT = {
+                id: 'demo_totp_account',
+                name: '演示账户',
+                issuer: 'TOTP Demo · 仅供测试',
+                secret: 'JBSWY3DPEHPK3PXP',
+                digits: 6,
+                algorithm: 'SHA-1',
+                period: 30,
+                isDemo: true
+            };
 
+            function loadAccounts() {
                 try {
                     const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) {
-                        accounts = JSON.parse(raw);
-                        // Validate and ensure all accounts have required fields
-                        accounts = accounts.filter(acc =>
-                            acc && acc.id && acc.name && acc.secret &&
-                            typeof acc.secret === 'string' && acc.secret.length > 0
-                        );
-                        // Ensure defaults
-                        accounts.forEach(acc => {
-                            acc.digits = acc.digits || 6;
-                            acc.algorithm = acc.algorithm || 'SHA-1';
-                            acc.issuer = acc.issuer || '';
-                            acc.period = acc.period || 30;
-                        });
-                    } else {
-                        // First visit: add a public demo account so visitors can immediately
-                        // see a working TOTP code. This secret is for demonstration only.
-                        accounts = [demoAccount];
-                        saveAccounts();
+                    let localAccounts = raw ? JSON.parse(raw) : [];
+
+                    // localStorage 只保存用户自己的账户；旧版本保存过的演示账户也会被移除。
+                    if (!Array.isArray(localAccounts)) {
+                        localAccounts = [];
                     }
+                    localAccounts = localAccounts.filter(acc =>
+                        acc && !acc.isDemo && acc.id !== DEMO_ACCOUNT.id &&
+                        acc.id && acc.name && acc.secret &&
+                        typeof acc.secret === 'string' && acc.secret.length > 0
+                    );
+
+                    localAccounts.forEach(acc => {
+                        acc.digits = acc.digits || 6;
+                        acc.algorithm = acc.algorithm || 'SHA-1';
+                        acc.issuer = acc.issuer || '';
+                        acc.period = acc.period || 30;
+                    });
+
+                    // 演示账户始终存在，但绝不写入 localStorage。
+                    accounts = [DEMO_ACCOUNT, ...localAccounts];
+                    saveAccounts();
                 } catch (e) {
                     console.warn('无法加载账户数据:', e);
-                    accounts = [demoAccount];
+                    accounts = [DEMO_ACCOUNT];
                     saveAccounts();
                 }
 
@@ -719,10 +721,13 @@
                     previousPeriodMap[acc.id] = -1;
                 });
             }
-
             function saveAccounts() {
                 try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+                    // 演示账户由网页代码提供，只把用户自己的账户保存到 localStorage。
+                    const localAccounts = accounts.filter(acc =>
+                        !acc.isDemo && acc.id !== DEMO_ACCOUNT.id
+                    );
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(localAccounts));
                 } catch (e) {
                     console.warn('无法保存账户数据:', e);
                     showToast('存储空间不足，请清理旧账户', false);
@@ -916,9 +921,13 @@
                             <button class="btn-icon copy-btn" data-index="${index}" title="复制验证码">
                                 📋
                             </button>
+                            ${acc.isDemo ? `
+                            <span class="btn-icon demo-lock" title="演示账户始终保留" aria-label="演示账户始终保留">
+                                🔒
+                            </span>` : `
                             <button class="btn-icon danger delete-btn" data-index="${index}" title="删除账户">
                                 🗑️
-                            </button>
+                            </button>`}
                         </div>
                     </div>`;
                 });
@@ -1073,6 +1082,13 @@
             function deleteAccount(index) {
                 if (index < 0 || index >= accounts.length) return;
                 const acc = accounts[index];
+
+                // 演示账户内置于网页中，始终保留。
+                if (acc.isDemo || acc.id === DEMO_ACCOUNT.id) {
+                    showToast('演示账户会始终保留', true);
+                    return;
+                }
+
                 if (confirm(`确定要删除账户「${acc.name}」吗？\n此操作不可恢复。`)) {
                     const accId = acc.id;
                     accounts.splice(index, 1);
