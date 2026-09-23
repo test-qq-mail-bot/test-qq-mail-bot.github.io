@@ -363,6 +363,8 @@ body.dense .preset{padding:5px 10px;margin-bottom:3px}
         <div class="diag-grid">
           <div class="dsignals"><div class="dsubhead">关键故障线索 / 可直接下钻</div><div id="diag-signals"><div class="diag-empty">暂无研判数据</div></div></div>
           <div class="dnext"><div class="dsubhead">研判建议</div><div id="diag-next"><div class="nextline">1. 先看同一设备的异常时间线，再用日志详情里的“关联分析 ±60s”。</div><div class="nextline">2. 接口/BGP/OSPF 同时出现时，优先核对同一时间窗内的接口状态变化。</div></div></div>
+        </div>
+        <div class="root-wrap"><div class="root-head"><b>关联线索 / 非确定性根因提示</b><span>仅基于当前日志窗口，不等同于设备侧真实根因</span></div><div class="root-list" id="diag-root"><div class="dtable-empty">暂无关联线索</div></div></div>
         <div class="dcockpit">
           <div class="dpanel">
             <div class="dpanel-head"><b>设备异常概览</b><span>按异常信号聚合 · 点击设备聚焦</span></div>
