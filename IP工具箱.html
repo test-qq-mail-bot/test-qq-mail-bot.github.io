@@ -37,10 +37,38 @@ table.rt{width:100%;min-width:640px;border-collapse:separate;border-spacing:0;fo
 .sc{background:linear-gradient(180deg,rgba(246,189,79,.07),rgba(246,189,79,.03));border:1px solid rgba(246,189,79,.2);border-radius:12px;padding:12px 14px;margin:9px 0;font-size:12px;line-height:1.65}.sc .st2{font-weight:800;color:#ffd36b;font-size:13px}.sc .sd{color:var(--dm);margin-top:3px}
 @media(max-width:780px){.mt{grid-template-columns:1fr}.cd{padding:20px}}@media(max-width:640px){.w{padding:14px 9px 38px}.hdr{padding:30px 16px 26px}.hdr p{font-size:13px}.cd{padding:17px;border-radius:15px}.rw{grid-template-columns:1fr}.bg .bn{flex:1 1 auto}.rbody{padding:13px}}
 
+
+/* --- Pro console layout v3 --- */
+#S-v4.on,#S-v6.on,#S-std.on{display:grid;grid-template-columns:238px minmax(0,1fr);gap:18px;align-items:start}
+#S-v4.on>.st,#S-v6.on>.st,#S-std.on>.st{
+grid-column:1;grid-row:1 / span 50;position:sticky;top:92px;display:flex;flex-direction:column;align-items:stretch;
+max-height:calc(100vh - 112px);overflow-y:auto;overflow-x:hidden;padding:8px;border-radius:18px;
+background:linear-gradient(180deg,rgba(10,22,38,.92),rgba(7,16,28,.86));box-shadow:var(--shadow2);scrollbar-width:thin
+}
+#S-v4.on>.st:before,#S-v6.on>.st:before,#S-std.on>.st:before{
+content:'TOOLS';padding:7px 10px 8px;color:#7188a5;font-size:10px;font-weight:800;letter-spacing:.16em
+}
+#S-v4.on>.st .sb,#S-v6.on>.st .sb,#S-std.on>.st .sb{width:100%;text-align:left;padding:10px 12px;border-radius:11px}
+#S-v4.on>.st .sb.on,#S-v6.on>.st .sb.on,#S-std.on>.st .sb.on{
+background:linear-gradient(135deg,rgba(63,124,255,.3),rgba(63,124,255,.1));border-color:rgba(110,168,255,.28);color:#e7f0ff
+}
+#S-v4.on>.st::-webkit-scrollbar,#S-v6.on>.st::-webkit-scrollbar,#S-std.on>.st::-webkit-scrollbar{width:6px}
+#S-v4.on>.st::-webkit-scrollbar-thumb,#S-v6.on>.st::-webkit-scrollbar-thumb,#S-std.on>.st::-webkit-scrollbar-thumb{background:rgba(148,163,184,.2);border-radius:999px}
+.result-actions{display:flex;gap:7px;align-items:center}
+.copy-result{padding:7px 10px;border:1px solid var(--bd);border-radius:9px;background:rgba(255,255,255,.045);color:#bcd0ea;cursor:pointer;font-size:11px;font-weight:750}
+.copy-result:hover{background:rgba(110,168,255,.1);color:#fff}
+.std-note{margin:-4px 0 14px;padding:10px 12px;border:1px solid rgba(110,168,255,.16);border-radius:11px;background:rgba(63,124,255,.055);color:#8fa6c3;font-size:11px}
+@media(max-width:980px){
+#S-v4.on,#S-v6.on,#S-std.on{grid-template-columns:1fr}
+#S-v4.on>.st,#S-v6.on>.st,#S-std.on>.st{grid-column:1;grid-row:auto;position:sticky;top:78px;z-index:18;max-height:none;flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:6px}
+#S-v4.on>.st:before,#S-v6.on>.st:before,#S-std.on>.st:before{display:none}
+#S-v4.on>.sec,#S-v6.on>.sec,#S-std.on>.sec{grid-column:1;grid-row:auto}
+#S-v4.on>.st .sb,#S-v6.on>.st .sb,#S-std.on>.st .sb{width:auto;text-align:center}
+}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>🌐 IP 工具箱 · IPv4 &amp; IPv6 网络计算工作台</h1><p>25+ 网络工具集中管理 · 子网、CIDR、VLSM、IPv6、EUI-64 与标准地址库，一页完成常用 IP 计算。</p><div class="hdr-meta"><span>IPv4 / IPv6</span><span>批量计算</span><span>核心计算离线</span><span>XLSX 导出</span></div></div>
+<div class="hdr"><h1>🌐 IP 工具箱 · IPv4 &amp; IPv6 网络计算工作台</h1><p>25+ 网络工具集中管理 · 子网、CIDR、VLSM、IPv6、EUI-64 与标准地址库，一页完成常用 IP 计算。</p><div class="hdr-meta"><span>IPv4 / IPv6</span><span>批量计算</span><span>完全离线</span><span>XLSX 本地导出</span></div></div>
 <div class="w">
 <div class="mt">
 <button class="mb on" onclick="mTab('v4',this)">📡 IPv4 工具</button>
@@ -148,8 +176,8 @@ fe80::21a:2bff:fe3c:4d5e</textarea></div><div class="bg"><button class="bn bp" o
 <button class="sb" onclick="sTab('std','v6',this)">IPv6标准地址</button>
 <button class="sb" onclick="sTab('std','q',this)">🔍 查询地址</button>
 </div>
-<div id="std-v4" class="sec on"><div class="cd"><h3>IPv4 RFC 标准地址段</h3><p class="ds">所有常用IPv4保留地址/特殊用途地址</p><div id="SV4"></div></div></div>
-<div id="std-v6" class="sec"><div class="cd"><h3>IPv6 RFC 标准地址段</h3><p class="ds">所有常用IPv6保留地址/特殊用途地址</p><div id="SV6"></div></div></div>
+<div id="std-v4" class="sec on"><div class="cd"><h3>IPv4 RFC 标准地址段</h3><p class="ds">常用 IPv4 保留、特殊用途、文档测试和组播地址</p><div class="std-note">依据 IANA IPv4 Special-Purpose Address Space 与 IPv4 Multicast Address Space 整理，保留工程中最常用的特殊用途条目。</div><div id="SV4"></div></div></div>
+<div id="std-v6" class="sec"><div class="cd"><h3>IPv6 RFC 标准地址段</h3><p class="ds">常用 IPv6 特殊用途、过渡机制、文档和组播地址</p><div class="std-note">依据 IANA IPv6 Special-Purpose Address Space 与 IPv6 Multicast Address Space 整理，并补充较新的注册条目。</div><div id="SV6"></div></div></div>
 <div id="std-q" class="sec"><div class="cd"><h3>🔍 查询任意地址的标准归属</h3><p class="ds">输入IPv4或IPv6地址,自动匹配所有已知标准</p><div class="g"><label><rq>*</rq>IP地址(IPv4或IPv6,支持批量)</label><textarea id="Isq">8.8.8.8
 192.168.1.1
 2001:db8::1
@@ -158,8 +186,100 @@ ff02::1</textarea></div><div class="bg"><button class="bn bp" onclick="Fsq()">�
 </div>
 </div>
 <script>
-var S4=[{r:'0.0.0.0/8',n:'This host on this network',f:'RFC 1122',d:'当前网络上的当前主机,用作源地址表示"本机"'},{r:'10.0.0.0/8',n:'Private Use (A类)',f:'RFC 1918',d:'A类私有地址,企业内网最常用段'},{r:'100.64.0.0/10',n:'Shared Address Space (CGN)',f:'RFC 6598',d:'运营商级NAT共享地址,ISP内部使用'},{r:'127.0.0.0/8',n:'Loopback',f:'RFC 1122',d:'环回地址,用于本机测试(127.0.0.1最常用)'},{r:'169.254.0.0/16',n:'Link-Local (APIPA)',f:'RFC 3927',d:'自动私有IP寻址,DHCP失败时自动生成'},{r:'172.16.0.0/12',n:'Private Use (B类)',f:'RFC 1918',d:'B类私有地址范围'},{r:'192.0.0.0/24',n:'IETF Protocol Assignments',f:'RFC 6890',d:'IETF协议保留'},{r:'192.0.2.0/24',n:'TEST-NET-1 (Documentation)',f:'RFC 5737',d:'文档和示例专用,不可路由'},{r:'192.88.99.0/24',n:'6to4 Relay Anycast',f:'RFC 3068',d:'6to4中继任播地址'},{r:'192.168.0.0/16',n:'Private Use (C类)',f:'RFC 1918',d:'C类私有地址,家庭/小型网络最常用'},{r:'198.18.0.0/15',n:'Benchmarking',f:'RFC 2544',d:'网络基准测试专用'},{r:'198.51.100.0/24',n:'TEST-NET-2 (Documentation)',f:'RFC 5737',d:'文档和示例专用段2'},{r:'203.0.113.0/24',n:'TEST-NET-3 (Documentation)',f:'RFC 5737',d:'文档和示例专用段3'},{r:'224.0.0.0/4',n:'Multicast',f:'RFC 5771',d:'IPv4组播地址范围'},{r:'240.0.0.0/4',n:'Reserved (Future Use)',f:'RFC 1112',d:'保留供将来使用(E类)'},{r:'255.255.255.255/32',n:'Limited Broadcast',f:'RFC 919',d:'受限广播,不跨越路由器'}];
-var S6=[{r:'::/128',n:'Unspecified',f:'RFC 4291',d:'未指定地址,用作源地址表示"无地址"'},{r:'::1/128',n:'Loopback',f:'RFC 4291',d:'IPv6环回地址,等同于IPv4的127.0.0.1'},{r:'::ffff:0:0/96',n:'IPv4-mapped IPv6',f:'RFC 4291',d:'将IPv4地址映射到IPv6(::ffff:x.x.x.x)'},{r:'64:ff9b::/96',n:'Well-Known Prefix',f:'RFC 6052',d:'知名前缀,用于IPv4/IPv6翻译'},{r:'100::/64',n:'Discard-Only',f:'RFC 6666',d:'丢弃路由前缀'},{r:'2001::/23',n:'IETF Protocol Assignments',f:'RFC 2928',d:'IETF协议分配'},{r:'2001:2::/48',n:'Benchmarking',f:'RFC 5180',d:'网络基准测试专用(AMI)'},{r:'2001:db8::/32',n:'Documentation',f:'RFC 3849',d:'文档专用前缀,不可路由,用于示例和教材'},{r:'2001:10::/28',n:'ORCHID',f:'RFC 4843',d:'加密哈希标识符(已废弃)'},{r:'2001:20::/28',n:'ORCHIDv2',f:'RFC 7343',d:'加密哈希标识符v2'},{r:'2002::/16',n:'6to4',f:'RFC 3056',d:'6to4隧道过渡机制'},{r:'fc00::/7',n:'Unique Local Address (ULA)',f:'RFC 4193',d:'唯一本地地址,类似IPv4私有地址,fd00::/8最常用'},{r:'fe80::/10',n:'Link-Local',f:'RFC 4291',d:'链路本地地址,仅在同一链路上有效,自动配置'},{r:'ff00::/8',n:'Multicast',f:'RFC 4291',d:'IPv6组播地址'},{r:'ff01::/16',n:'Interface-Local Multicast',f:'RFC 4291',d:'接口本地组播,仅loopback'},{r:'ff02::/16',n:'Link-Local Multicast',f:'RFC 4291',d:'链路本地组播:ff02::1(所有节点) ff02::2(所有路由器)'},{r:'ff05::/16',n:'Site-Local Multicast',f:'RFC 4291',d:'站点本地组播'},{r:'ff08::/16',n:'Organization-Local Multicast',f:'RFC 4291',d:'组织本地组播'},{r:'ff0e::/16',n:'Global Multicast',f:'RFC 4291',d:'全局组播'},{r:'ff02::1',n:'All Nodes (link-local)',f:'RFC 4291',d:'链路上所有节点'},{r:'ff02::2',n:'All Routers (link-local)',f:'RFC 4291',d:'链路上所有路由器'},{r:'ff02::fb',n:'mDNSv6',f:'RFC 6762',d:'多播DNS'},{r:'ff02::1:ff00:0/104',n:'Solicited-Node Multicast',f:'RFC 4291',d:'请求节点组播,用于NDP地址解析'}];
+var S4=[
+{r:'0.0.0.0/8',n:'This network',f:'RFC 791 / 1122',d:'当前网络/本机特殊语义地址空间'},
+{r:'0.0.0.0/32',n:'This host on this network',f:'RFC 1122',d:'作为源地址时表示本机或本网络上下文'},
+{r:'10.0.0.0/8',n:'Private-Use',f:'RFC 1918',d:'IPv4 私有地址，企业与内网常用'},
+{r:'100.64.0.0/10',n:'Shared Address Space',f:'RFC 6598',d:'运营商级 NAT（CGN）共享地址'},
+{r:'127.0.0.0/8',n:'Loopback',f:'RFC 1122',d:'环回地址，通常使用 127.0.0.1'},
+{r:'169.254.0.0/16',n:'Link Local',f:'RFC 3927',d:'链路本地地址，常见于自动私有 IP 配置'},
+{r:'172.16.0.0/12',n:'Private-Use',f:'RFC 1918',d:'IPv4 私有地址'},
+{r:'192.0.0.0/24',n:'IETF Protocol Assignments',f:'RFC 6890',d:'协议特殊用途地址母块'},
+{r:'192.0.0.0/29',n:'IPv4 Service Continuity Prefix',f:'RFC 7335',d:'IPv4 服务连续性前缀'},
+{r:'192.0.0.8/32',n:'IPv4 dummy address',f:'RFC 7600',d:'IPv4 dummy address'},
+{r:'192.0.0.9/32',n:'Port Control Protocol Anycast',f:'RFC 7723',d:'PCP 任播地址'},
+{r:'192.0.0.10/32',n:'Traversal Using Relays around NAT Anycast',f:'RFC 8155',d:'TURN 任播地址'},
+{r:'192.0.0.170/31',n:'NAT64/DNS64 Discovery',f:'RFC 7050 / 8880',d:'NAT64/DNS64 发现地址（192.0.0.170/32 与 192.0.0.171/32）'},
+{r:'192.0.2.0/24',n:'Documentation (TEST-NET-1)',f:'RFC 5737',d:'文档与示例专用地址'},
+{r:'192.31.196.0/24',n:'AS112-v4',f:'RFC 7535',d:'AS112 服务地址块'},
+{r:'192.52.193.0/24',n:'AMT',f:'RFC 7450',d:'Automatic Multicast Tunneling'},
+{r:'192.88.99.0/24',n:'Deprecated (6to4 Relay Anycast)',f:'RFC 7526',d:'已废弃的 6to4 中继任播地址块'},
+{r:'192.88.99.2/32',n:'6a44-relay anycast',f:'RFC 6751',d:'6a44 relay 任播地址'},
+{r:'192.168.0.0/16',n:'Private-Use',f:'RFC 1918',d:'IPv4 私有地址，家庭/小型网络常用'},
+{r:'192.175.48.0/24',n:'Direct Delegation AS112 Service',f:'RFC 7534',d:'AS112 直接委派服务地址块'},
+{r:'198.18.0.0/15',n:'Benchmarking',f:'RFC 2544',d:'网络互连设备基准测试专用'},
+{r:'198.51.100.0/24',n:'Documentation (TEST-NET-2)',f:'RFC 5737',d:'文档与示例专用地址'},
+{r:'203.0.113.0/24',n:'Documentation (TEST-NET-3)',f:'RFC 5737',d:'文档与示例专用地址'},
+{r:'224.0.0.0/4',n:'Multicast',f:'RFC 1112 / 5771',d:'IPv4 组播地址总范围'},
+{r:'224.0.0.0/24',n:'Local Network Control',f:'RFC 5771',d:'本地网络控制组播，路由器不应转发'},
+{r:'224.0.0.1/32',n:'All Systems on this Subnet',f:'RFC 1112',d:'本子网上所有系统'},
+{r:'224.0.0.2/32',n:'All Routers on this Subnet',f:'RFC 1112',d:'本子网上所有路由器'},
+{r:'224.0.0.5/32',n:'OSPF All Routers',f:'RFC 2328',d:'OSPF 所有路由器'},
+{r:'224.0.0.6/32',n:'OSPF Designated Routers',f:'RFC 2328',d:'OSPF 指定路由器'},
+{r:'224.0.0.9/32',n:'RIP2 Routers',f:'RFC 1723',d:'RIPv2 路由器'},
+{r:'224.0.0.10/32',n:'EIGRP Routers',f:'RFC 7868',d:'EIGRP 路由器'},
+{r:'224.0.0.13/32',n:'All PIM Routers',f:'RFC 4601',d:'PIM 路由器'},
+{r:'224.0.0.18/32',n:'VRRP',f:'RFC 9568',d:'VRRP 组播地址'},
+{r:'224.0.0.22/32',n:'IGMP',f:'IANA',d:'IGMP 使用的组播地址'},
+{r:'224.0.0.251/32',n:'mDNS',f:'RFC 6762',d:'多播 DNS'},
+{r:'224.0.0.252/32',n:'LLMNR',f:'RFC 4795',d:'链路本地多播名称解析'},
+{r:'224.0.0.253/32',n:'Teredo',f:'RFC 4380',d:'Teredo 发现相关组播地址'},
+{r:'232.0.0.0/8',n:'Source-Specific Multicast',f:'RFC 4607',d:'源特定组播（SSM）'},
+{r:'239.0.0.0/8',n:'Organization-Local Scope',f:'RFC 2365 / 5771',d:'组织本地范围组播'},
+{r:'240.0.0.0/4',n:'Reserved',f:'RFC 1112',d:'保留地址空间'},
+{r:'255.255.255.255/32',n:'Limited Broadcast',f:'RFC 8190 / 919',d:'受限广播地址'}
+];
+var S6=[
+{r:'::/128',n:'Unspecified Address',f:'RFC 4291',d:'未指定地址'},
+{r:'::1/128',n:'Loopback Address',f:'RFC 4291',d:'IPv6 环回地址'},
+{r:'::ffff:0:0/96',n:'IPv4-mapped Address',f:'RFC 4291',d:'IPv4 映射 IPv6 地址'},
+{r:'64:ff9b::/96',n:'IPv4-IPv6 Translation',f:'RFC 6052',d:'IPv4/IPv6 翻译知名前缀'},
+{r:'64:ff9b:1::/48',n:'IPv4-IPv6 Translation',f:'RFC 8215',d:'网络特定 IPv4/IPv6 翻译前缀'},
+{r:'100::/64',n:'Discard-Only Address Block',f:'RFC 6666',d:'丢弃路由专用地址块'},
+{r:'100:0:0:1::/64',n:'Dummy IPv6 Prefix',f:'RFC 9780',d:'Dummy IPv6 前缀'},
+{r:'2001::/23',n:'IETF Protocol Assignments',f:'RFC 2928',d:'IETF 协议分配母块'},
+{r:'2001::/32',n:'TEREDO',f:'RFC 4380 / 8190',d:'Teredo IPv6 隧道过渡机制'},
+{r:'2001:1::1/128',n:'Port Control Protocol Anycast',f:'RFC 7723',d:'PCP 任播地址'},
+{r:'2001:1::2/128',n:'TURN Anycast',f:'RFC 8155',d:'TURN 任播地址'},
+{r:'2001:1::3/128',n:'DNS-SD Service Registration Protocol Anycast',f:'RFC 9665',d:'DNS-SD 服务注册协议任播地址'},
+{r:'2001:2::/48',n:'Benchmarking',f:'RFC 5180',d:'网络基准测试专用'},
+{r:'2001:3::/32',n:'AMT',f:'RFC 7450',d:'Automatic Multicast Tunneling'},
+{r:'2001:4:112::/48',n:'AS112-v6',f:'RFC 7535',d:'AS112 服务地址'},
+{r:'2001:10::/28',n:'Deprecated (previously ORCHID)',f:'RFC 4843',d:'已废弃 ORCHID 地址空间'},
+{r:'2001:20::/28',n:'ORCHIDv2',f:'RFC 7343',d:'ORCHIDv2 加密标识地址'},
+{r:'2001:30::/28',n:'Drone Remote ID Protocol Entity Tags Prefix',f:'RFC 9374',d:'Drone Remote ID DETs 前缀'},
+{r:'2001:db8::/32',n:'Documentation',f:'RFC 3849',d:'IPv6 文档与示例专用'},
+{r:'2002::/16',n:'6to4',f:'RFC 3056',d:'6to4 隧道过渡机制'},
+{r:'2620:4f:8000::/48',n:'Direct Delegation AS112 Service',f:'RFC 7534',d:'AS112 直接委派服务地址块'},
+{r:'3fff::/20',n:'Documentation',f:'RFC 9637',d:'新增 IPv6 文档专用前缀'},
+{r:'5f00::/16',n:'Segment Routing (SRv6) SIDs',f:'RFC 9602',d:'SRv6 Segment Identifier 专用范围'},
+{r:'fc00::/7',n:'Unique-Local',f:'RFC 4193 / 8190',d:'IPv6 唯一本地地址，通常使用 fd00::/8'},
+{r:'fe80::/10',n:'Link-Local Unicast',f:'RFC 4291',d:'链路本地单播地址'},
+{r:'ff00::/8',n:'Multicast',f:'RFC 4291',d:'IPv6 组播地址总范围'},
+{r:'ff01::1/128',n:'All Nodes Address',f:'RFC 4291',d:'接口本地所有节点'},
+{r:'ff01::2/128',n:'All Routers Address',f:'RFC 4291',d:'接口本地所有路由器'},
+{r:'ff01::fb/128',n:'mDNSv6',f:'RFC 6762',d:'接口本地多播 DNS'},
+{r:'ff02::1/128',n:'All Nodes Address',f:'RFC 4291',d:'链路本地所有节点'},
+{r:'ff02::2/128',n:'All Routers Address',f:'RFC 4291',d:'链路本地所有路由器'},
+{r:'ff02::4/128',n:'DVMRP Routers',f:'RFC 1075',d:'DVMRP 路由器'},
+{r:'ff02::5/128',n:'OSPF All Routers',f:'RFC 2328',d:'OSPFv3 所有路由器'},
+{r:'ff02::6/128',n:'OSPF Designated Routers',f:'RFC 2328',d:'OSPFv3 指定路由器'},
+{r:'ff02::9/128',n:'RIP Routers',f:'RFC 2080',d:'RIPng 路由器'},
+{r:'ff02::a/128',n:'EIGRP Routers',f:'RFC 7868',d:'EIGRP for IPv6 路由器'},
+{r:'ff02::c/128',n:'SSDP',f:'UPnP',d:'SSDP IPv6 组播地址'},
+{r:'ff02::d/128',n:'All PIM Routers',f:'IANA',d:'PIM 路由器'},
+{r:'ff02::12/128',n:'VRRP',f:'RFC 9568',d:'VRRP IPv6 组播地址'},
+{r:'ff02::13/128',n:'ALL_GRASP_NEIGHBORS',f:'RFC 8990',d:'GRASP 邻居组播地址'},
+{r:'ff02::14/128',n:'NVO BUM Traffic',f:'RFC 9624',d:'网络虚拟化覆盖 BUM 流量'},
+{r:'ff02::16/128',n:'All MLDv2-capable routers',f:'RFC 9777',d:'支持 MLDv2 的所有路由器'},
+{r:'ff02::1:2/128',n:'All_DHCP_Relay_Agents_and_Servers',f:'RFC 9915',d:'DHCPv6 中继与服务器'},
+{r:'ff02::1:3/128',n:'Link-local Multicast Name Resolution',f:'RFC 4795',d:'LLMNR'},
+{r:'ff02::1:6/128',n:'Babel',f:'RFC 8966',d:'Babel 路由协议'},
+{r:'ff02::1:ff00:0/104',n:'Solicited-Node Address',f:'RFC 4291',d:'请求节点组播，用于 NDP 地址解析'},
+{r:'ff02::2:ff00:0/104',n:'Node Information Queries',f:'RFC 4620',d:'节点信息查询组播前缀'},
+{r:'ff05::2/128',n:'All Routers Address',f:'RFC 4291',d:'站点范围所有路由器'},
+{r:'ff05::1:3/128',n:'All DHCP Servers',f:'RFC 9915',d:'站点范围所有 DHCPv6 服务器'}
+];
 function i4(ip){var p=ip.split('.').map(Number);return(((p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3])>>>0)}
 function n4(n){return[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.')}
 function msk(l){return l===0?0:(0xffffffff<<(32-l))>>>0}
@@ -180,7 +300,7 @@ function tg(h){return h.map(function(x){return'<span class="tg">'+x.f+': '+x.n+'
 function sc(h){return h.map(function(x){return'<div class="sc"><div class="st2">📌 '+x.f+' — '+x.n+'</div><div class="sd">地址段: '+x.r+'　　'+x.d+'</div></div>'}).join('')}
 function mTab(t,b){document.querySelectorAll('.mt .mb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');document.querySelectorAll('.w>.sec').forEach(function(x){x.classList.remove('on')});document.getElementById('S-'+t).classList.add('on')}
 function sTab(m,i,b){document.querySelectorAll('#T'+(m==='v4'?'4':m==='v6'?'6':'S')+' .sb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');document.getElementById('S-'+m).querySelectorAll('.sec').forEach(function(x){x.classList.remove('on')});document.getElementById(m+'-'+i).classList.add('on')}
-function SR(id,html){var el=document.getElementById(id);el.querySelector('.rbody').innerHTML=html;el.classList.add('on')}
+function SR(id,html){var el=document.getElementById(id);el.querySelector('.rbody').innerHTML=html;el.classList.add('on');var bar=el.querySelector('.rh');if(bar&&!bar.querySelector('.result-actions')){var acts=document.createElement('div');acts.className='result-actions';var copy=document.createElement('button');copy.className='copy-result';copy.type='button';copy.textContent='复制';copy.onclick=function(){var text=el.querySelector('.rbody').innerText||'';copyText(text,copy)};acts.appendChild(copy);var exportBtn=bar.querySelector('.bn');if(exportBtn){acts.appendChild(exportBtn)}bar.appendChild(acts)}}
 function vl(x){return x.trim()}
 function v4(ip){var s=String(ip==null?'':ip).trim(),p=s.split('.');return p.length===4&&p.every(function(x){return /^\d{1,3}$/.test(x)&&+x>=0&&+x<=255})}
 function maskInfo(mask){mask=String(mask==null?'':mask).trim();if(!v4(mask))return null;var n=i4(mask)>>>0,b=n.toString(2).padStart(32,'0');if(!/^1*0*$/.test(b))return null;return{n:n,pl:b.match(/^1*/)[0].length}}
@@ -193,9 +313,23 @@ function p6(s){s=String(s==null?'':s).trim();var parts=s.split('/'),addr=parts[0
 function m6v(addr){var p=p6(addr);if(!p)return[];var h=[];for(var i=0;i<S6.length;i++){var s=S6[i],sp=p6(s.r);if(!sp)continue;var mp=Math.min(p.pl,sp.pl);if(b6(na6(p.g,mp)).substring(0,mp)===b6(na6(sp.g,mp)).substring(0,mp))h.push(s)}return h}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function pow2str(n){return(1n<<BigInt(n)).toString()}
-function bx(id,nm){var el=document.getElementById(id).querySelector('.rbody');var ts=el.querySelectorAll('table.rt');var wb=XLSX.utils.book_new();if(ts.length){for(var t=0;t<ts.length;t++){var rs=[];ts[t].querySelectorAll('tr').forEach(function(tr){var c=[];tr.querySelectorAll('th,td').forEach(function(td){c.push(td.textContent.trim())});rs.push(c)});var ws=XLSX.utils.aoa_to_sheet(rs);var cl=[];if(rs.length){for(var c=0;c<rs[0].length;c++){var mx=8;for(var r=0;r<rs.length;r++){var l=rs[r][c]?rs[r][c].length:0;if(l>mx)mx=l}cl.push({wch:Math.min(mx+4,50)})}ws['!cols']=cl}XLSX.utils.book_append_sheet(wb,ws,'Sheet'+(t+1))}}else{var rs2=el.innerText.split('\n').filter(function(x){return x.trim()}).map(function(x){return[x]});XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rs2),'结果')}XLSX.writeFile(wb,nm+'.xlsx')}
-var _xl=0;
-function xlsx(id,nm){if(_xl===2){bx(id,nm);return}if(_xl===1){window.__xlsxQueue=window.__xlsxQueue||[];window.__xlsxQueue.push([id,nm]);return}var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=function(){_xl=2;var q=window.__xlsxQueue||[];window.__xlsxQueue=null;q.forEach(function(v){bx(v[0],v[1])});bx(id,nm)};s.onerror=function(){_xl=0;alert('XLSX库加载失败（需要网络），结果仍可正常查看')};document.head.appendChild(s);_xl=1}
+function xmlEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&apos;'}[c]})}
+function copyText(text,btn){if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){btn.textContent='已复制';setTimeout(function(){btn.textContent='复制'},1200)}).catch(function(){fallbackCopy(text,btn)})}else fallbackCopy(text,btn)}
+function fallbackCopy(text,btn){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');btn.textContent='已复制';setTimeout(function(){btn.textContent='复制'},1200)}catch(e){}ta.remove()}
+function xlsxCol(n){var s='';n++;while(n>0){var r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26)}return s}
+function crc32(data){var crc=0xffffffff;for(var i=0;i<data.length;i++){crc^=data[i];for(var j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return(crc^0xffffffff)>>>0}
+function u16(a,o,n){a[o]=n&255;a[o+1]=(n>>>8)&255}
+function u32(a,o,n){a[o]=n&255;a[o+1]=(n>>>8)&255;a[o+2]=(n>>>16)&255;a[o+3]=(n>>>24)&255}
+function concatBytes(parts){var total=0;parts.forEach(function(p){total+=p.length});var out=new Uint8Array(total),off=0;parts.forEach(function(p){out.set(p,off);off+=p.length});return out}
+function zipStore(files){var enc=new TextEncoder(),locals=[],centrals=[],offset=0;for(var i=0;i<files.length;i++){var name=files[i][0],data=enc.encode(files[i][1]),nb=enc.encode(name),crc=crc32(data),lh=new Uint8Array(30+nb.length),ch=new Uint8Array(46+nb.length);u32(lh,0,0x04034b50);u16(lh,4,20);u16(lh,6,0);u16(lh,8,0);u16(lh,10,0);u16(lh,12,0);u32(lh,14,crc);u32(lh,18,data.length);u32(lh,22,data.length);u16(lh,26,nb.length);u16(lh,28,0);lh.set(nb,30);locals.push(lh,data);u32(ch,0,0x02014b50);u16(ch,4,20);u16(ch,6,20);u16(ch,8,0);u16(ch,10,0);u16(ch,12,0);u16(ch,14,0);u32(ch,16,crc);u32(ch,20,data.length);u32(ch,24,data.length);u16(ch,28,nb.length);u16(ch,30,0);u16(ch,32,0);u16(ch,34,0);u16(ch,36,0);u32(ch,38,0);u32(ch,42,offset);ch.set(nb,46);centrals.push(ch);offset+=lh.length+data.length}
+var cd=concatBytes(centrals),all=concatBytes(locals.concat([cd]));var end=new Uint8Array(22);u32(end,0,0x06054b50);u16(end,4,0);u16(end,6,0);u16(end,8,files.length);u16(end,10,files.length);u32(end,12,cd.length);u32(end,16,offset);u16(end,20,0);return concatBytes([all,end])}
+function rowsFromResult(id){var el=document.getElementById(id).querySelector('.rbody'),tables=el.querySelectorAll('table.rt');if(tables.length){var out=[];tables.forEach(function(t){var sheet=[];t.querySelectorAll('tr').forEach(function(tr){var row=[];tr.querySelectorAll('th,td').forEach(function(td){row.push(td.innerText.trim())});sheet.push(row)});out.push(sheet)});return out}return[[((el.innerText||'').split('\n').filter(function(x){return x.trim()}).map(function(x){return[x]}))]]}
+function sheetXml(rows){var h='<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';for(var r=0;r<rows.length;r++){h+='<row r="'+(r+1)+'">';for(var c=0;c<rows[r].length;c++){var v=String(rows[r][c]==null?'':rows[r][c]);h+='<c r="'+xlsxCol(c)+(r+1)+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'}h+='</row>'}return h+'</sheetData></worksheet>'}
+function makeXlsx(sheets){var files=[],content='<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>';for(var i=0;i<sheets.length;i++)content+='<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';content+='</Types>';files.push(['[Content_Types].xml',content]);files.push(['_rels/.rels','<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>']);files.push(['docProps/core.xml','<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>IP 工具箱导出</dc:title><dc:creator>IP 工具箱</dc:creator></cp:coreProperties>']);files.push(['docProps/app.xml','<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>IP 工具箱</Application></Properties>']);var wb='<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>';var rels='<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';for(var j=0;j<sheets.length;j++){var name=String(sheets[j][0]||('Sheet'+(j+1))).slice(0,31);wb+='<sheet name="'+xmlEsc(name)+'" sheetId="'+(j+1)+'" r:id="rId'+(j+1)+'"/>';rels+='<Relationship Id="rId'+(j+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(j+1)+'.xml"/>';files.push(['xl/worksheets/sheet'+(j+1)+'.xml',sheetXml(sheets[j][1])])}wb+='</sheets></workbook>';rels+='</Relationships>';files.push(['xl/workbook.xml',wb]);files.push(['xl/_rels/workbook.xml.rels',rels]);return zipStore(files)}
+function downloadBytes(bytes,name){var blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)}
+function bx(id,nm){var raw=rowsFromResult(id),sheets=[];for(var i=0;i<raw.length;i++)sheets.push(['Sheet'+(i+1),raw[i]]);downloadBytes(makeXlsx(sheets),nm)}
+function xlsx(id,nm){bx(id,nm)}
+
 
 function F4sub(){var s=vl(document.getElementById('I4s').value),p=p4(s);if(!p){SR('R4s','<span class="er">❌ 格式错误，请输入有效 CIDR，例如 192.168.1.0/24</span>');return}var nt=p.n,bc=p.broadcast,pl=p.pl,wi=(~p.mask)>>>0,ho=pl===32?1:pl===31?2:bc-nt-1,fi=pl>=31?n4(nt):n4(nt+1),la=pl>=31?n4(bc):n4(bc-1),hi=m4n(nt,pl),h='<span class="lb">输入:</span><span class="vl">'+esc(s)+'</span>\n<span class="lb">网络地址:</span><span class="ok">'+n4(nt)+'/'+pl+'</span>\n<span class="lb">子网掩码:</span><span class="vl">'+n4(p.mask)+'</span>\n<span class="lb">通配符掩码:</span><span class="vl">'+n4(wi)+'</span>\n<span class="lb">广播地址:</span><span class="vl">'+n4(bc)+'</span>\n<span class="lb">第一个可用:</span><span class="ok">'+fi+'</span>\n<span class="lb">最后一个可用:</span><span class="ok">'+la+'</span>\n<span class="lb">可用主机数:</span><span class="ok">'+ho.toLocaleString()+'</span>\n<span class="lb">总地址数:</span><span class="vl">'+(bc-nt+1).toLocaleString()+'</span>';if(hi.length)h+='\n\n'+sc(hi);SR('R4s',h)}
 
