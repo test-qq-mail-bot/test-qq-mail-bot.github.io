@@ -535,11 +535,11 @@ if(pl!==''&&mk!==''){SR('R4c','<span class="er">❌ CIDR 前缀和子网掩码�
 if(pl!==''){
  if(!/^\d+$/.test(pl)||+pl>32){SR('R4c','<span class="er">❌ CIDR 前缀必须是 0-32 的整数</span>');return}
  var l=+pl,m=msk(l);
- h='<span class="lb">CIDR:</span><span class="vl">/'+l+'</span>\\n<span class="lb">子网掩码:</span><span class="ok">'+n4(m)+'</span>\\n<span class="lb">通配符掩码:</span><span class="vl">'+n4((~m)>>>0)+'</span>\\n<span class="lb">地址数:</span><span class="vl">'+Math.pow(2,32-l).toLocaleString()+'</span>';
+ h='<span class="lb">CIDR:</span><span class="vl">/'+l+'</span>\n<span class="lb">子网掩码:</span><span class="ok">'+n4(m)+'</span>\n<span class="lb">通配符掩码:</span><span class="vl">'+n4((~m)>>>0)+'</span>\n<span class="lb">地址数:</span><span class="vl">'+Math.pow(2,32-l).toLocaleString()+'</span>';
 }else if(mk!==''){
  var mi=maskInfo(mk);
  if(!mi){SR('R4c','<span class="er">❌ 子网掩码无效，必须是连续的 1 后接连续的 0</span>');return}
- h='<span class="lb">子网掩码:</span><span class="vl">'+esc(mk)+'</span>\\n<span class="lb">CIDR:</span><span class="ok">/'+mi.pl+'</span>\\n<span class="lb">通配符掩码:</span><span class="vl">'+n4((~mi.n)>>>0)+'</span>\\n<span class="lb">地址数:</span><span class="vl">'+Math.pow(2,32-mi.pl).toLocaleString()+'</span>';
+ h='<span class="lb">子网掩码:</span><span class="vl">'+esc(mk)+'</span>\n<span class="lb">CIDR:</span><span class="ok">/'+mi.pl+'</span>\n<span class="lb">通配符掩码:</span><span class="vl">'+n4((~mi.n)>>>0)+'</span>\n<span class="lb">地址数:</span><span class="vl">'+Math.pow(2,32-mi.pl).toLocaleString()+'</span>';
 }else{
  SR('R4c','<span class="er">❌ CIDR 前缀和子网掩码必须填写一个，请二选一</span>');return
 }
