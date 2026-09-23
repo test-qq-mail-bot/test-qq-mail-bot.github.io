@@ -170,6 +170,41 @@ select:hover,select:focus{border-color:var(--ac)}
 .hist .bar:hover{filter:brightness(1.12) saturate(1.2)}
 .hist .bar.zero{background:var(--bg3)}
 .hist-axis{display:flex;justify-content:space-between;font-family:var(--disp);font-size:.64rem;letter-spacing:1.5px;color:var(--faint);padding:4px 1px 6px}
+.diagbar{border-bottom:1px solid var(--line);background:#fff;padding:11px 18px 12px;box-shadow:var(--sh-sm)}
+.diag-head{display:flex;align-items:center;gap:10px;min-width:0}
+.diag-title{font-family:var(--disp);font-size:.78rem;font-weight:800;letter-spacing:1.8px;color:var(--txt);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.diag-title span{font-size:.58rem;letter-spacing:1.2px;color:var(--faint);font-weight:700;border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:2px 7px}
+.diag-status{display:inline-flex;align-items:center;gap:7px;min-width:0;flex:1;padding:5px 10px;border:1px solid var(--line);background:var(--bg2);border-radius:999px;font-family:var(--disp)}
+.diag-status i{width:9px;height:9px;border-radius:50%;background:var(--line2);box-shadow:none;flex:none}
+.diag-status b{font-size:.76rem;letter-spacing:1px;color:var(--dim);white-space:nowrap}
+.diag-status span{font-size:.68rem;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.diag-status.ok{border-color:rgba(5,150,105,.24);background:rgba(5,150,105,.05)}.diag-status.ok i{background:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.08)}
+.diag-status.warn{border-color:rgba(217,119,6,.28);background:rgba(217,119,6,.05)}.diag-status.warn i{background:var(--amber);box-shadow:0 0 0 3px rgba(217,119,6,.08)}
+.diag-status.bad{border-color:rgba(220,38,38,.28);background:rgba(220,38,38,.05)}.diag-status.bad i{background:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.diag-status.info{border-color:rgba(37,99,235,.2);background:rgba(37,99,235,.04)}.diag-status.info i{background:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.07)}
+.diag-kpis{display:grid;grid-template-columns:repeat(6,minmax(90px,1fr));gap:8px;margin-top:9px}
+.dkpi{border:1px solid var(--line);background:var(--bg2);border-radius:7px;padding:7px 9px;min-width:0}
+.dkpi label{display:block;font-family:var(--disp);font-size:.55rem;letter-spacing:1.5px;color:var(--faint);font-weight:700;margin-bottom:4px}
+.dkpi strong{display:block;font-family:var(--disp);font-size:1.05rem;line-height:1.1;color:var(--txt);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dkpi.alert strong{color:var(--red)}.dkpi.warn strong{color:var(--amber)}.dkpi.ok strong{color:var(--green)}
+.diag-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:8px;margin-top:8px}
+.dsignals,.dnext{border:1px solid var(--line);background:var(--bg2);border-radius:7px;padding:7px 9px;min-width:0}
+.dsubhead{font-family:var(--disp);font-size:.56rem;font-weight:800;letter-spacing:1.7px;color:var(--faint);margin-bottom:6px}
+.dsignal{display:flex;align-items:center;gap:8px;min-width:0;padding:4px 0;border-bottom:1px solid rgba(227,233,240,.75)}
+.dsignal:last-child{border-bottom:none}.dsig-tag{font-family:var(--disp);font-size:.56rem;font-weight:800;letter-spacing:.5px;padding:2px 6px;border-radius:4px;flex:none}
+.dsignal .dsig-main{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--txt);font-size:.71rem}
+.dsignal .dsig-main b{font-family:var(--disp);font-size:.78rem;margin-right:6px}
+.dsignal .dsig-main span{color:var(--faint)}
+.dsignal button{all:unset;cursor:pointer;margin-left:auto;font-family:var(--disp);font-size:.58rem;letter-spacing:1px;color:var(--ac);padding:2px 6px;border:1px solid rgba(13,148,136,.2);background:#fff;border-radius:4px;flex:none}
+.dsignal button:hover{border-color:var(--ac);box-shadow:var(--ring)}
+.dnext .nextline{font-size:.7rem;color:var(--dim);line-height:1.55;padding:3px 0}
+.dnext .nextline b{font-family:var(--disp);color:var(--txt)}
+.diag-empty{font-size:.68rem;color:var(--faint);line-height:1.5}
+.signal-inline{display:inline-flex;align-items:center;vertical-align:1px;margin-right:7px;font-family:var(--disp);font-size:.58rem;font-weight:800;letter-spacing:.5px;padding:2px 6px;border-radius:4px}
+.sig-bad{color:#b91c1c;background:rgba(185,28,28,.08)}.sig-warn{color:#a16207;background:rgba(161,98,7,.09)}.sig-blue{color:#1d4ed8;background:rgba(37,99,235,.08)}.sig-purple{color:#6d28d9;background:rgba(124,58,237,.08)}.sig-green{color:#047857;background:rgba(5,150,105,.08)}.sig-gray{color:#64748b;background:rgba(100,116,139,.08)}
+@media(max-width:1250px){.diag-kpis{grid-template-columns:repeat(3,1fr)}.diag-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.diagbar{padding:9px 12px}.diag-head{flex-wrap:wrap}.diag-status{order:3;flex-basis:100%}.diag-kpis{grid-template-columns:repeat(2,1fr)}}
+
 .resultbar{display:flex;align-items:center;gap:12px;padding:9px 18px;border-bottom:1px solid var(--line);font-size:.82rem;color:var(--dim);flex-wrap:wrap;background:var(--bg1)}
 .resultbar .n{font-family:var(--disp);font-size:1.3rem;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums}
 .live-badge{display:none;align-items:center;gap:6px;color:var(--red);font-family:var(--disp);letter-spacing:2.5px;font-size:.76rem;font-weight:800}
@@ -289,6 +324,25 @@ body.dense .preset{padding:5px 10px;margin-bottom:3px}
         </div>
         <div class="filterstrip" id="filterstrip"></div>
       </div>
+      <div class="diagbar" id="diagnosis">
+        <div class="diag-head">
+          <div class="diag-title">故障态势 <span>日志规则研判</span></div>
+          <div class="diag-status info" id="diag-status"><i></i><b id="diag-state">待查询</b><span id="diag-summary">连接后执行查询；“一键故障研判”会优先检查最近 15 分钟的异常信号</span></div>
+          <button class="btn sm primary" id="btn-diagnose">一键故障研判</button>
+        </div>
+        <div class="diag-kpis">
+          <div class="dkpi alert"><label>异常线索</label><strong id="d-abnormal">0</strong></div>
+          <div class="dkpi alert"><label>严重 / 错误</label><strong id="d-critical">0 / 0</strong></div>
+          <div class="dkpi"><label>受影响设备</label><strong id="d-devices">0</strong></div>
+          <div class="dkpi"><label>受影响接口</label><strong id="d-ifaces">0</strong></div>
+          <div class="dkpi warn"><label>首次异常</label><strong id="d-first">--</strong></div>
+          <div class="dkpi"><label>最近异常</label><strong id="d-last">--</strong></div>
+        </div>
+        <div class="diag-grid">
+          <div class="dsignals"><div class="dsubhead">关键故障线索 / 可直接下钻</div><div id="diag-signals"><div class="diag-empty">暂无研判数据</div></div></div>
+          <div class="dnext"><div class="dsubhead">研判建议</div><div id="diag-next"><div class="nextline">1. 先看同一设备的异常时间线，再用日志详情里的“关联分析 ±60s”。</div><div class="nextline">2. 接口/BGP/OSPF 同时出现时，优先核对同一时间窗内的接口状态变化。</div></div></div>
+        </div>
+      </div>
       <div class="stats collapsed" id="stats"><div class="stats-in">
         <div class="stat"><h5>TOP 设备 <span class="ref" id="st-refresh">[刷新]</span></h5><div id="st-dev"></div></div>
         <div class="stat"><h5>级别分布</h5><div id="st-sev"></div></div>
@@ -335,12 +389,12 @@ var RE_IFACE=/\b(GigabitEthernet|Ten-GigabitEthernet|XGigabitEthernet|Eth-Trunk|
 var RE_IP=/\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 var RE_VENDOR=[['hw','华为',/%%\d{2}[A-Z]+\//],['h3c','华三',/%%10[A-Z-]+\//],['cs','思科',/%[A-Z0-9_]+-\d-[A-Z0-9_]+:/],['rj','锐捷',/RUIJIE|ruijie/],['jn','Juniper',/rt_|mgd/],['fg','FortiGate',/devname=/],['zte','中兴',/ZTE|zte/],['ar','Arista',/Arista|arista/]];
 var RE_SEV_MAP={'3':/error|err|fail|critical/i,'2':/critical|panic/i,'4':/warn|warning/i,'6':/info/i,'7':/debug/i};
-var INTERNAL_KEYS={_sv:1,_vid:1,_vname:1,_html:1,_msg:1,_time:1,_stream:1,_stream_id:1};
+var INTERNAL_KEYS={_sv:1,_vid:1,_vname:1,_html:1,_msg:1,_time:1,_stream:1,_stream_id:1,_sig:1,_sigLabel:1,_sigClass:1,_sigQuery:1};
 
 var SCENES={
 net:{name:'数通设备',accent:'var(--net)',sevMode:'syslog',iface:true,
   placeholder:'LogsQL - bgp / 接口 / hostname / severity...',
-  presets:[{n:'全部日志',q:'',c:'var(--net)',v:'all'},{n:'接口 Down/Up',q:'~"(?i)(LINK_STATE|UPDOWN|IFNET|PHY|line protocol).*(down|up)"',c:'var(--red)',v:'华为/华三/思科'},{n:'BGP 邻居',q:'~"(?i)bgp.*(peer|neighbor|nbr).*(down|up|established|lost)"',c:'var(--orange)',v:'全厂商'},{n:'OSPF 邻居',q:'~"(?i)ospf.*(nbr|neighbor).*(down|full|changed)"',c:'var(--orange)',v:'全厂商'},{n:'配置变更',q:'~"(?i)(config|CFG_CHANGE|CMDLOG|command).*(change|modify|save|commit)"',c:'var(--yellow)',v:'全厂商'},{n:'硬件告警',q:'~"(?i)(power|fan|temperature|hw_alarm|ENTITY|board).*(fault|fail|abnormal|alarm)"',c:'var(--red)',v:'全厂商'},{n:'CPU/内存高',q:'~"(?i)(cpu|memory|mem).*(usage|utilization|threshold|high|exceed)"',c:'var(--yellow)',v:'全厂商'},{n:'登录/AAA',q:'~"(?i)(login|logout|auth|ssh|telnet|AAA).*(fail|denied|success|accepted)"',c:'var(--blue)',v:'全厂商'},{n:'STP/环路',q:'~"(?i)(STP|MSTP|RSTP|loop|topology change)"',c:'var(--yellow)',v:'全厂商'},{n:'VPN/IPSec',q:'~"(?i)(IPSec|IKE|tunnel|SA).*(down|up|establish|negoti)"',c:'var(--orange)',v:'全厂商'}],
+  presets:[{n:'故障研判（15分钟）',q:'~"(?i)(down|fail|error|critical|alarm|fault|abnormal|flap|reset|unreachable|timeout|adjacency|neighbor|topology change|temperature|fan|power)"',c:'var(--red)',v:'规则研判',diagnosis:true},{n:'全部日志',q:'',c:'var(--net)',v:'all'},{n:'接口 Down/Up',q:'~"(?i)(LINK_STATE|UPDOWN|IFNET|PHY|line protocol).*(down|up)"',c:'var(--red)',v:'华为/华三/思科'},{n:'BGP 邻居',q:'~"(?i)bgp.*(peer|neighbor|nbr).*(down|up|established|lost)"',c:'var(--orange)',v:'全厂商'},{n:'OSPF 邻居',q:'~"(?i)ospf.*(nbr|neighbor).*(down|full|changed)"',c:'var(--orange)',v:'全厂商'},{n:'配置变更',q:'~"(?i)(config|CFG_CHANGE|CMDLOG|command).*(change|modify|save|commit)"',c:'var(--yellow)',v:'全厂商'},{n:'硬件告警',q:'~"(?i)(power|fan|temperature|hw_alarm|ENTITY|board).*(fault|fail|abnormal|alarm)"',c:'var(--red)',v:'全厂商'},{n:'CPU/内存高',q:'~"(?i)(cpu|memory|mem).*(usage|utilization|threshold|high|exceed)"',c:'var(--yellow)',v:'全厂商'},{n:'登录/AAA',q:'~"(?i)(login|logout|auth|ssh|telnet|AAA).*(fail|denied|success|accepted)"',c:'var(--blue)',v:'全厂商'},{n:'STP/环路',q:'~"(?i)(STP|MSTP|RSTP|loop|topology change)"',c:'var(--yellow)',v:'全厂商'},{n:'VPN/IPSec',q:'~"(?i)(IPSec|IKE|tunnel|SA).*(down|up|establish|negoti)"',c:'var(--orange)',v:'全厂商'}],
   suggest:[['接口 Down','~"(?i)(LINK_STATE|UPDOWN|line protocol).*down"','华为/思科'],['BGP Down','~"(?i)bgp.*(peer|neighbor).*down"','路由'],['OSPF Down','~"(?i)ospf.*nbr.*down"','路由'],['配置变更','~"(?i)(config|CMDLOG).*(change|save)"','审计'],['硬件告警','~"(?i)(power|fan|temperature).*(fault|fail)"','硬件'],['登录失败','~"(?i)(login|ssh).*(fail|denied)"','安全'],['按设备','hostname:"设备名"','语法'],['按级别','severity:3','语法'],['排除','-debug','语法']]},
 srv:{name:'服务器',accent:'var(--srv)',sevMode:'syslog',iface:false,
   placeholder:'LogsQL - oom / ssh / disk / systemd...',
@@ -355,7 +409,7 @@ var SEV_SYSLOG=[['0','EMERG','#b91c1c'],['1','ALERT','#dc2626'],['2','CRIT','#ea
 var SEV_TEXT=[['error','ERROR','#dc2626'],['warn','WARN','#d97706'],['info','INFO','#2563eb'],['debug','DEBUG','#7c3aed']];
 var TEXT_ALIAS={error:['error','err','fatal','critical','crit','alert','emerg','severe','fail','failed','failure','exception'],warn:['warn','warning'],info:['info','notice'],debug:['debug','trace','verbose']};
 
-var S={scene:'net',rows:[],devices:[],fields:[],ips:[],filters:{sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]},presetQ:'',live:false,liveTimer:null,liveLastTime:null,favs:[],valCache:[],selIdx:-1,connected:false};
+var S={scene:'net',rows:[],devices:[],fields:[],ips:[],filters:{sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]},presetQ:'',live:false,liveTimer:null,liveLastTime:null,favs:[],valCache:[],selIdx:-1,connected:false,window:null,reqSeq:0};
 var LSKEY='vl-noc-v9';
 function saveCfg(){try{localStorage.setItem(LSKEY,JSON.stringify({base:$('#baseurl').value,scene:S.scene,range:$('#range').value,limit:$('#limit').value,sort:$('#sort').value,hl:$('#hl').checked,hlif:$('#hlif').checked,kbd:$('#kbd').checked,dense:$('#dense').checked,favs:S.favs}))}catch(e){}}
 function loadCfg(){try{var c=JSON.parse(localStorage.getItem(LSKEY)||'{}');if(c.base)$('#baseurl').value=c.base;if(c.scene&&SCENES[c.scene])S.scene=c.scene;if(c.range)$('#range').value=c.range;if(c.limit)$('#limit').value=c.limit;if(c.sort)$('#sort').value=c.sort;if(c.hl!==undefined)$('#hl').checked=c.hl;if(c.hlif!==undefined)$('#hlif').checked=c.hlif;if(c.kbd!==undefined)$('#kbd').checked=c.kbd;if(c.dense!==undefined)$('#dense').checked=c.dense;if(Array.isArray(c.favs))S.favs=c.favs}catch(e){}if(!$('#baseurl').value)$('#baseurl').value='http://localhost:9428'}
@@ -370,7 +424,7 @@ function api(path,params){
 function parseNDJSON(t){var out=[];var lines=t.split('\n');for(var i=0;i<lines.length;i++){var s=lines[i].trim();if(!s)continue;try{out.push(JSON.parse(s))}catch(e){out.push({_msg:s})}}return out}
 function setStatus(m,t){$('#sdot').className='dot '+(m||'');$('#stext').textContent=t}
 function parseDur(v){var m=v.match(/^(\d+)([smhd])$/);return m?(+m[1])*({s:1e3,m:6e4,h:36e5,d:864e5}[m[2]]):36e5}
-function timeParams(){var end=Date.now();return{start:new Date(end-parseDur($('#range').value)).toISOString(),end:new Date(end).toISOString()}}
+function timeParams(){if(S.window)return S.window;var end=Date.now();return{start:new Date(end-parseDur($('#range').value)).toISOString(),end:new Date(end).toISOString()}}
 function stepStr(ms){if(ms<=5e3)return'5s';if(ms<=10e3)return'10s';if(ms<=15e3)return'15s';if(ms<=30e3)return'30s';if(ms<=6e4)return'1m';if(ms<=12e4)return'2m';if(ms<=3e5)return'5m';if(ms<=6e5)return'10m';if(ms<=9e5)return'15m';if(ms<=18e5)return'30m';if(ms<=36e5)return'1h';if(ms<=72e5)return'2h';if(ms<=108e5)return'3h';if(ms<=216e5)return'6h';if(ms<=432e5)return'12h';return'24h'}
 
 /* ===== IP 工具: 校验 + 精确边界正则(不依赖 \b, 用 [.] 与 [^0-9.] 边界, 规避 LogsQL 转义歧义) ===== */
@@ -380,6 +434,81 @@ function addIP(raw){var ip=(raw||'').trim();if(!ip)return;if(!validIPv4(ip)){toa
 function removeIP(ip){S.filters.ips=S.filters.ips.filter(function(x){return x!==ip});renderIPChips();renderFilterStrip();if(S.connected)runQuery()}
 function renderIPChips(){var box=$('#ipchips');box.innerHTML='';$('#ipcnt').textContent=S.filters.ips.length?' '+S.filters.ips.length:'';if(!S.filters.ips.length){box.innerHTML='<span class="empty-note">尚未添加 IP</span>';return}for(var i=0;i<S.filters.ips.length;i++){(function(ip){var c=document.createElement('span');c.className='chip ip';c.innerHTML=esc(ip)+'<span class="x" title="移除">x</span>';c.querySelector('.x').onclick=function(ev){ev.stopPropagation();removeIP(ip)};c.onclick=function(){/* 点击本体也移除, 与设备芯片的"切换"不同: IP 用 x 移除更直观, 本体点击不做事以免误触 */};box.appendChild(c)})(S.filters.ips[i])}}
 
+
+function classifySignal(msg,sv){
+  var m=String(msg||'').toLowerCase();
+  if(/(?:interface|ifnet|link[_ -]?state|line protocol|phy|link).*?(?:down|failed|fault)/i.test(m)||/(?:down|failed).*?(?:interface|port|link)/i.test(m))return{key:'link',label:'接口 DOWN',cls:'sig-bad',query:'~"(?i)(LINK_STATE|UPDOWN|IFNET|PHY|line protocol|interface|port).*(down|failed|fault)"'};
+  if(/\bbgp\b.*(?:peer|neighbor|nbr|adjacency|session).*(?:down|lost|reset|idle|active)/i.test(m))return{key:'bgp',label:'BGP 邻居',cls:'sig-bad',query:'~"(?i)bgp.*(peer|neighbor|nbr|adjacency|session).*(down|lost|reset|idle|active)"'};
+  if(/\bospf\b.*(?:nbr|neighbor|adjacency|state).*(?:down|full|change|reset|dead)/i.test(m))return{key:'ospf',label:'OSPF 邻居',cls:'sig-bad',query:'~"(?i)ospf.*(nbr|neighbor|adjacency|state).*(down|full|change|reset|dead)"'};
+  if(/\b(?:stp|rstp|mstp)\b|loop|topology change/i.test(m))return{key:'stp',label:'STP / 环路',cls:'sig-warn',query:'~"(?i)(STP|RSTP|MSTP|loop|topology change)"'};
+  if(/(?:fan|temperature|temp|power|psu|board|module|hardware|hw[_ -]?alarm).*(?:fault|fail|abnormal|alarm|high|low|overheat)/i.test(m))return{key:'hardware',label:'硬件告警',cls:'sig-bad',query:'~"(?i)(power|fan|temperature|temp|psu|board|module|hardware|hw_alarm).*(fault|fail|abnormal|alarm|high|low|overheat)"'};
+  if(/(?:cpu|memory|mem|ram).*(?:usage|utilization|threshold|high|exceed|over)/i.test(m))return{key:'resource',label:'CPU / 内存',cls:'sig-warn',query:'~"(?i)(cpu|memory|mem|ram).*(usage|utilization|threshold|high|exceed|over)"'};
+  if(/(?:config|configuration|cfg_change|cmdlog|command).*(?:change|modify|save|commit)/i.test(m))return{key:'config',label:'配置变更',cls:'sig-blue',query:'~"(?i)(config|configuration|cfg_change|cmdlog|command).*(change|modify|save|commit)"'};
+  if(/(?:login|logout|auth|ssh|telnet|aaa).*(?:fail|failed|denied|invalid)/i.test(m))return{key:'auth',label:'认证失败',cls:'sig-purple',query:'~"(?i)(login|auth|ssh|telnet|aaa).*(fail|failed|denied|invalid)"'};
+  if(/(?:ipsec|ike|vpn|tunnel).*(?:down|up|fail|failed|lost|timeout)/i.test(m))return{key:'vpn',label:'VPN / IPSec',cls:'sig-warn',query:'~"(?i)(IPSec|IKE|VPN|tunnel).*(down|fail|lost|timeout)"'};
+  if(/(?:unreachable|no route|route.*fail|connection refused|timeout|packet loss|protocol error)/i.test(m))return{key:'net',label:'网络可达性',cls:'sig-bad',query:'~"(?i)(unreachable|no route|route.*fail|connection refused|timeout|packet loss|protocol error)"'};
+  if((/error|fail|critical|panic|alarm|fault|abnormal|reset/i.test(m))||/^[0-3]$/.test(String(sv||'')))return{key:'other',label:'通用异常',cls:'sig-gray',query:'~"(?i)(error|fail|critical|panic|alarm|fault|abnormal|reset)"'};
+  return null;
+}
+function rowInterfaces(msg){
+  var out={};var re=new RegExp(RE_IFACE.source,'g');var mm;
+  while((mm=re.exec(String(msg||'')))!==null)out[mm[0]]=1;
+  return Object.keys(out);
+}
+function formatDiagTime(t){var d=new Date(t);return isNaN(d)?'--':pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function updateDiagnosis(){
+  var box=$('#diag-status'),state=$('#diag-state'),sum=$('#diag-summary');
+  var abnormal=[],by={},dev={},ifs={},critical=0,error=0,first=Infinity,last=0;
+  for(var i=0;i<S.rows.length;i++){
+    var e=S.rows[i],msg=e._msg!=null?String(e._msg):'';
+    var sig=e._sig?{key:e._sig,label:e._sigLabel,cls:e._sigClass,query:e._sigQuery}:null;
+    var sv=String(e._sv||'');
+    if(sig&&sig.key!=='config'){abnormal.push(e);by[sig.key]=(by[sig.key]||{label:sig.label,cls:sig.cls,query:sig.query,count:0,dev:{},ifc:{}});by[sig.key].count++;var ds=e.hostname||'未知设备';by[sig.key].dev[ds]=1;var ii=rowInterfaces(msg);for(var z=0;z<ii.length;z++)by[sig.key].ifc[ii[z]]=1}
+    if(sig&&sig.key==='config'){by.config=(by.config||{label:sig.label,cls:sig.cls,query:sig.query,count:0,dev:{},ifc:{}});by.config.count++}
+    if(/^[0-2]$/.test(sv))critical++;
+    if(sv==='3')error++;
+    if(sig&&sig.key!=='config'){if(e.hostname)dev[e.hostname]=1;var rr=rowInterfaces(msg);for(var rj=0;rj<rr.length;rj++)ifs[rr[rj]]=1;var tm=new Date(e._time||e.time||'').getTime();if(!isNaN(tm)){first=Math.min(first,tm);last=Math.max(last,tm)}}
+  }
+  $('#d-abnormal').textContent=fmtInt(abnormal.length);
+  $('#d-critical').textContent=fmtInt(critical)+' / '+fmtInt(error);
+  $('#d-devices').textContent=fmtInt(Object.keys(dev).length);
+  $('#d-ifaces').textContent=fmtInt(Object.keys(ifs).length);
+  $('#d-first').textContent=first<Infinity?formatDiagTime(first):'--';
+  $('#d-last').textContent=last?formatDiagTime(last):'--';
+  box.className='diag-status';
+  if(!S.connected){box.classList.add('info');state.textContent='待连接';sum.textContent='填写 VictoriaLogs 地址并连接后开始研判';}
+  else if(!S.rows.length){box.classList.add('info');state.textContent='暂无数据';sum.textContent='当前时间范围内没有返回日志';}
+  else if(critical>0||by.hardware&&by.hardware.count>=2||by.link&&by.link.count>=8){box.classList.add('bad');state.textContent='严重异常';sum.textContent='检测到高危级别或集中型故障线索，请先看 TOP 线索与对应设备';}
+  else if(error>0||Object.keys(by).some(function(k){return k==='link'||k==='bgp'||k==='ospf'||k==='net'})){box.classList.add('warn');state.textContent='需要关注';sum.textContent='存在接口/路由/可达性异常，建议按设备聚焦后做 ±60s 关联分析';}
+  else if(Object.keys(by).length){box.classList.add('info');state.textContent='有告警/变更';sum.textContent='检测到告警或配置变更，暂未发现集中型高危信号';}
+  else{box.classList.add('ok');state.textContent='未见明显异常';sum.textContent='当前返回日志未命中预设故障线索；这不等同于设备健康探测正常';}
+  var keys=Object.keys(by).sort(function(a,b){return by[b].count-by[a].count}).slice(0,5),sigBox=$('#diag-signals');
+  if(!keys.length){sigBox.innerHTML='<div class="diag-empty">当前结果没有可归类的故障线索。可以点击“一键故障研判”扩大到常见数通异常。</div>';}
+  else{
+    var sh='';
+    for(var k=0;k<keys.length;k++){var it=by[keys[k]],dcount=Object.keys(it.dev).length,icount=Object.keys(it.ifc).length;
+      sh+='<div class="dsignal"><span class="dsig-tag '+it.cls+'">'+esc(it.label)+'</span><div class="dsig-main"><b>'+fmtInt(it.count)+' 条</b><span>'+dcount+' 设备 · '+icount+' 接口</span></div><button data-dq="'+esc(it.query||'')+'">下钻</button></div>';}
+    sigBox.innerHTML=sh;
+    var db=sigBox.querySelectorAll('button[data-dq]');
+    for(var bi=0;bi<db.length;bi++){db[bi].onclick=function(){var q=this.getAttribute('data-dq');$('#q').value=q;S.presetQ=q;if(S.connected)runQuery()}}
+  }
+  var next=$('#diag-next'),notes=[];
+  var ranked=keys.length?by[keys[0]]:null;
+  if(ranked)notes.push('<div class="nextline"><b>主线索：</b>'+esc(ranked.label)+'（'+fmtInt(ranked.count)+' 条），先按“下钻”缩小到该类事件。</div>');
+  if(error||critical)notes.push('<div class="nextline"><b>级别：</b>SYSLOG 0–2 共 '+fmtInt(critical)+' 条、3 共 '+fmtInt(error)+' 条，优先核对同一设备时间窗。</div>');
+  if(Object.keys(dev).length>1)notes.push('<div class="nextline"><b>范围：</b>异常跨 '+fmtInt(Object.keys(dev).length)+' 台设备，检查是否存在共享链路/上联/区域性事件。</div>');
+  notes.push('<div class="nextline"><b>下一步：</b>打开日志详情 → “聚焦该设备” → “关联分析 ±60s”，确认故障前后的上下文。</div>');
+  next.innerHTML=notes.join('');
+}
+function runDiagnosis(){
+  if(S.scene!=='net'){toast('一键故障研判目前针对数通设备场景','warn');return}
+  S.filters={sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]};S.valCache=[];S.window=null;
+  $('#ifacebox').value='';renderSevChips();renderDeviceChips();renderIPChips();renderFieldChips();renderValueChips();renderFilterStrip();
+  $('#range').value='15m';
+  var q=SCENES.net.presets.filter(function(p){return p.diagnosis})[0].q;
+  $('#q').value=q;S.presetQ=q;
+  if(S.connected)runQuery();else toast('请先连接 VictoriaLogs','warn');
+}
 function buildQuery(){var parts=[];var raw=$('#q').value.trim();if(raw)parts.push(raw);var f=S.filters,sc=SCENES[S.scene];if(f.sev){if(sc.sevMode==='syslog')parts.push('severity:'+f.sev);else parts.push('~"(?i)'+f.sev+'"')}if(f.device)parts.push(f.device);if(f.iface)parts.push(f.iface);
   /* IP 过滤: 多个用 or 组合, 整体作为一个 part 用 AND 连接 */
   if(f.ips&&f.ips.length){var ors=[];for(var ii=0;ii<f.ips.length;ii++)ors.push(ipRegexExpr(f.ips[ii]));parts.push(f.ips.length>1?'('+ors.join(' or ')+')':ors[0])}
@@ -437,6 +566,7 @@ function precompute(rows){
     var vid='oth',vname='其他';
     for(var vi=0;vi<RE_VENDOR.length;vi++){if(RE_VENDOR[vi][2].test(msg)){vid=RE_VENDOR[vi][0];vname=RE_VENDOR[vi][1];break}}
     e._vid=vid;e._vname=vname;
+    var sig=classifySignal(msg,sv);e._sig=sig?sig.key:'';e._sigLabel=sig?sig.label:'';e._sigClass=sig?sig.cls:'';e._sigQuery=sig?sig.query:'';
     var h=esc(msg);
     if(ifOn){h=h.replace(RE_IP,function(m){return'<span class="ipaddr">'+m+'</span>'});h=h.replace(RE_IFACE,function(m){return'<span class="iface">'+m+'</span>'})}
     if(hlOn){for(var ti=0;ti<termREs.length;ti++)h=h.replace(termREs[ti],'<mark>$1</mark>')}
@@ -448,7 +578,8 @@ function sevLabel(sv){if(SCENES[S.scene].sevMode==='text')return sv.toUpperCase(
 function sevColor(sv){if(SCENES[S.scene].sevMode==='text'){for(var i=0;i<SEV_TEXT.length;i++)if(SEV_TEXT[i][0]===sv)return SEV_TEXT[i][2];return'#64748b'}var it=SEV_SYSLOG[+sv];return it?it[2]:'#64748b'}
 
 var ROW_H=34;var BUFFER=8;var vsStart=-1,vsEnd=-1,vsRAF=0;
-function initVirtual(){var box=$('#logs');$('#vspacer').style.height=(S.rows.length*ROW_H)+'px';$('#empty').style.display=S.rows.length?'none':'';vsStart=-1;vsEnd=-1;renderVirtual();box.onscroll=function(){if(!vsRAF)vsRAF=requestAnimationFrame(function(){vsRAF=0;renderVirtual()})}}
+function calcRowH(){return document.body.classList.contains('dense')?28:(window.innerHeight<=760?30:34)}
+function initVirtual(){ROW_H=calcRowH();var box=$('#logs');$('#vspacer').style.height=(S.rows.length*ROW_H)+'px';$('#empty').style.display=S.rows.length?'none':'';vsStart=-1;vsEnd=-1;renderVirtual();box.onscroll=function(){if(!vsRAF)vsRAF=requestAnimationFrame(function(){vsRAF=0;renderVirtual()})}}
 function renderVirtual(){
   var box=$('#logs');var vh=box.clientHeight;var st=box.scrollTop;
   var start=Math.max(0,Math.floor(st/ROW_H)-BUFFER);
@@ -463,17 +594,17 @@ function renderVirtual(){
     row.dataset.i=i;
     var svTag='';
     if(e._sv){if(SCENES[S.scene].sevMode==='syslog')svTag='<span class="lv-tag sv'+e._sv+'">'+sevLabel(e._sv)+'</span>';else svTag='<span class="lv-tag" style="color:'+sevColor(e._sv)+';background:'+sevColor(e._sv)+'1a">'+sevLabel(e._sv)+'</span>'}
-    row.innerHTML='<div class="t">'+esc(fmtTime(e._time||e.time||''))+'</div><div class="h">'+esc(e.hostname||'--')+'</div><div class="lv">'+svTag+'</div><div class="vn"><span class="lv-tag v-'+e._vid+'">'+esc(e._vname)+'</span></div><div class="m">'+e._html+'</div><div class="car">&gt;</div>';
+    var sigTag=(S.scene==='net'&&e._sig)?'<span class="signal-inline '+esc(e._sigClass)+'">'+esc(e._sigLabel)+'</span>':'';row.innerHTML='<div class="t">'+esc(fmtTime(e._time||e.time||''))+'</div><div class="h">'+esc(e.hostname||'--')+'</div><div class="lv">'+svTag+'</div><div class="vn"><span class="lv-tag v-'+e._vid+'">'+esc(e._vname)+'</span></div><div class="m">'+sigTag+e._html+'</div><div class="car">&gt;</div>';
     frag.appendChild(row);
   }
   var vr=$('#vrows');vr.style.transform='translateY('+(start*ROW_H)+'px)';vr.innerHTML='';vr.appendChild(frag);
 }
 
 function renderScenes(){var box=$('#scenes');box.innerHTML='';var keys=Object.keys(SCENES);for(var ki=0;ki<keys.length;ki++){(function(k){var sc=SCENES[k];var b=document.createElement('button');b.className='scene'+(S.scene===k?' on':'');b.style.setProperty('--sc',sc.accent);b.innerHTML='<b>'+sc.name+'</b><small>'+sc.presets.length+' 预设</small>';b.onclick=function(){switchScene(k)};box.appendChild(b)})(keys[ki])}}
-function switchScene(k){S.scene=k;S.filters={sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]};S.valCache=[];S.selIdx=-1;var sc=SCENES[k];document.documentElement.style.setProperty('--ac',sc.accent);$('#q').placeholder=sc.placeholder;$('#ifacebox').style.display=sc.iface?'':'none';renderScenes();renderPresets();renderSevChips();renderIPChips();renderValueChips();renderFilterStrip();saveCfg();if(S.connected)runQuery()}
+function switchScene(k){S.scene=k;S.filters={sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]};S.valCache=[];S.selIdx=-1;S.window=null;var sc=SCENES[k];document.documentElement.style.setProperty('--ac',sc.accent);$('#q').placeholder=sc.placeholder;$('#ifacebox').style.display=sc.iface?'':'none';renderScenes();renderPresets();renderSevChips();renderIPChips();renderValueChips();renderFilterStrip();saveCfg();if(S.connected)runQuery()}
 function vendorTag(v){var cls={hw:'hw','h3c':'h3c',cs:'cs'}[v]||'all';return'<span class="vtag '+cls+'">'+esc(v)+'</span>'}
 function renderPresets(){var box=$('#presets');box.innerHTML='';var ps=SCENES[S.scene].presets;for(var i=0;i<ps.length;i++){(function(idx){var p=ps[idx];var b=document.createElement('button');b.className='preset';b.style.setProperty('--pc',p.c);b.innerHTML='<b>'+esc(p.n)+vendorTag(p.v)+'<span class="kbd">'+(idx<9?'C+'+(idx+1):'')+'</span></b><code>'+esc(p.q||'*')+'</code>';b.onclick=function(){applyPreset(idx)};box.appendChild(b)})(i)}}
-function applyPreset(i){var p=SCENES[S.scene].presets[i];if(!p)return;$('#q').value=p.q;S.presetQ=p.q;var all=document.querySelectorAll('#presets .preset');for(var j=0;j<all.length;j++)all[j].classList.toggle('active',j===i);if(S.connected)runQuery();else toast('请先点击 [连接]','warn')}
+function applyPreset(i){var p=SCENES[S.scene].presets[i];if(!p)return;if(p.diagnosis)S.window=null;$('#q').value=p.q;S.presetQ=p.q;if(p.diagnosis){S.filters={sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]};S.valCache=[];$('#range').value='15m';$('#ifacebox').value='';renderSevChips();renderDeviceChips();renderIPChips();renderFieldChips();renderValueChips();renderFilterStrip();}var all=document.querySelectorAll('#presets .preset');for(var j=0;j<all.length;j++)all[j].classList.toggle('active',j===i);if(S.connected)runQuery();else toast('请先点击 [连接]','warn')}
 function renderSevChips(){var box=$('#sevchips');box.innerHTML='';var sc=SCENES[S.scene];var ttl=$('#sevtitle').querySelector('.ttl');ttl.firstChild.textContent=(sc.sevMode==='syslog'?'SYSLOG 级别':'日志级别')+' ';var defs=sc.sevMode==='syslog'?SEV_SYSLOG:SEV_TEXT;for(var i=0;i<defs.length;i++){(function(val,label,color){var c=document.createElement('button');c.className='chip'+(S.filters.sev===val?' on':'');c.innerHTML='<i style="background:'+color+'"></i>'+label;c.onclick=function(){if(S.filters.sev===val){S.filters.sev=null;c.classList.remove('on')}else{S.filters.sev=val;var all=box.querySelectorAll('.chip');for(var j=0;j<all.length;j++)all[j].classList.remove('on');c.classList.add('on')}renderFilterStrip();if(S.connected)runQuery()};box.appendChild(c)})(defs[i][0],defs[i][1],defs[i][2])}}
 function renderFilterStrip(){var box=$('#filterstrip');var f=S.filters;var items=[];if(f.sev)items.push({lab:'级别:'+sevLabel(f.sev),ip:false,clear:function(){f.sev=null;renderSevChips()}});if(f.device)items.push({lab:'设备:'+f.device.replace(/hostname:"|"/g,''),ip:false,clear:function(){f.device=null;renderDeviceChips()}});if(f.iface)items.push({lab:'接口:'+f.iface.replace(/~"|"/g,''),ip:false,clear:function(){f.iface='';$('#ifacebox').value=''}});
   for(var pi=0;pi<f.ips.length;pi++){(function(ip){items.push({lab:'IP:'+ip,ip:true,clear:function(){removeIP(ip)}})})(f.ips[pi])}
@@ -487,6 +618,7 @@ function renderValueChips(){var box=$('#valchips');$('#valcnt').textContent=S.va
 function runQuery(){
   if(!S.connected){toast('请先点击 [连接]','warn');return}
   if(S.live)stopLive();
+  var reqId=++S.reqSeq;
   saveCfg();S.selIdx=-1;$('#detail').classList.remove('show');
   var query=buildQuery();var tp=timeParams();
   var params={query:query,start:tp.start,end:tp.end,limit:$('#limit').value,sort:$('#sort').value};
@@ -496,8 +628,9 @@ function runQuery(){
   for(var i=0;i<6;i++){var s=document.createElement('div');s.className='sk';$('#vrows').appendChild(s)}
   var t0=performance.now();
   api('/select/logsql/query',params).then(function(txt){
+    if(reqId!==S.reqSeq)return;
     var rows=precompute(parseNDJSON(txt));var ms=Math.round(performance.now()-t0);
-    S.rows=rows;deriveMeta();initVirtual();
+    S.rows=rows;deriveMeta();initVirtual();updateDiagnosis();
     $('#cnt').textContent=fmtInt(rows.length);$('#qtime').textContent=' '+ms+'ms';
     $('#meta').innerHTML='<b>'+esc(query)+'</b> / '+fmtInt(rows.length)+' 条 / '+ms+'ms / 设备'+S.devices.length+' 字段'+S.fields.length;
     $('#lastreq').innerHTML='<span class="ok">OK</span> '+ms+'ms';
@@ -508,18 +641,18 @@ function runQuery(){
     $('#empty').style.display='';$('#empty').innerHTML='<div class="big">// 请求失败</div><pre>'+esc(e.message)+'\n\n排查:\n1. 地址/端口是否正确(默认9428)\n2. VictoriaLogs 需加 CORS 参数:\n   -http.header.Access-Control-Allow-Origin=*\n3. 经 Nginx 代理需放开 POST 和 CORS</pre>';
     toast('查询失败: '+esc(e.message),'err',5000);
   }).finally(function(){$('#btn-run').classList.remove('loading');$('#btn-run').disabled=false});
-  loadHits(query,tp);
-  if(!$('#stats').classList.contains('collapsed'))loadStats(query,tp);
+  loadHits(query,tp,reqId);
+  if(!$('#stats').classList.contains('collapsed'))loadStats(query,tp,reqId);
 }
 
-function loadHits(query,tp){var dur=parseDur($('#range').value);var step=stepStr(dur);api('/select/logsql/hits',{query:query,start:tp.start,end:tp.end,step:step}).then(function(txt){var d=parseNDJSON(txt)[0];if(!d||!d.hits||!d.timestamps){$('#hist').innerHTML='';return}var ts=d.timestamps,hits=d.hits;var max=1;for(var i=0;i<hits.length;i++)if(hits[i]>max)max=hits[i];var box=$('#hist');box.innerHTML='';for(var j=0;j<ts.length;j++){(function(idx){var bar=document.createElement('div');bar.className='bar'+(hits[idx]?'':' zero');bar.style.height=Math.max(hits[idx]?6:3,Math.round(hits[idx]/max*100))+'%';bar.title=fmtTime(ts[idx])+' / '+fmtInt(hits[idx])+' 条';bar.onclick=function(){$('#q').value=(S.presetQ?S.presetQ+' AND ':'')+'_time:['+new Date(ts[idx]).toISOString()+'d15m]';runQuery()};box.appendChild(bar)})(j)}$('#ax0').textContent=shortTime(ts[0]);$('#ax1').textContent=shortTime(ts[ts.length-1])}).catch(function(){$('#hist').innerHTML=''})}
+function loadHits(query,tp,reqId){var dur=parseDur($('#range').value);var step=stepStr(dur);api('/select/logsql/hits',{query:query,start:tp.start,end:tp.end,step:step}).then(function(txt){if(reqId!==S.reqSeq)return;var d=parseNDJSON(txt)[0];if(!d||!d.hits||!d.timestamps){$('#hist').innerHTML='';return}var ts=d.timestamps,hits=d.hits;var max=1;for(var i=0;i<hits.length;i++)if(hits[i]>max)max=hits[i];var box=$('#hist');box.innerHTML='';for(var j=0;j<ts.length;j++){(function(idx){var bar=document.createElement('div');bar.className='bar'+(hits[idx]?'':' zero');bar.style.height=Math.max(hits[idx]?6:3,Math.round(hits[idx]/max*100))+'%';bar.title=fmtTime(ts[idx])+' / '+fmtInt(hits[idx])+' 条';bar.onclick=function(){var a=idx>0?new Date(ts[idx-1]).getTime():new Date(ts[idx]).getTime()-parseDur($('#range').value)/Math.max(4,ts.length);var b=idx<ts.length-1?new Date(ts[idx+1]).getTime():new Date(ts[idx]).getTime()+parseDur($('#range').value)/Math.max(4,ts.length);S.window={start:new Date(a).toISOString(),end:new Date(b).toISOString()};runQuery()};box.appendChild(bar)})(j)}$('#ax0').textContent=shortTime(ts[0]);$('#ax1').textContent=shortTime(ts[ts.length-1])}).catch(function(){$('#hist').innerHTML=''})}
 
 function hbarHTML(l,v,m,c,sev){var pct=Math.max(v>0?4:0,Math.round(v/m*100));return'<div class="hbar'+(sev?' sev':'')+'" data-l="'+esc(l)+'"'+(sev?' style="--sv:'+c+'"':'')+'><span class="n">'+(sev?'<b>'+esc(l)+'</b>':esc(l))+'</span><span class="tr"><span class="fl" style="width:'+pct+'%"></span></span><span class="v">'+fmtInt(v)+'</span></div>'}
-function loadStats(query,tp){
+function loadStats(query,tp,reqId){
   Promise.allSettled([
     api('/select/logsql/query',{query:query+' | stats by (hostname) count() logs',start:tp.start,end:tp.end,limit:'200'}),
     api('/select/logsql/query',{query:query+' | stats by (severity) count() logs',start:tp.start,end:tp.end,limit:'200'})
-  ]).then(function(results){
+  ]).then(function(results){if(reqId&&reqId!==S.reqSeq)return;
     if(results[0].status==='fulfilled'){var rows=parseNDJSON(results[0].value).map(function(r){return{k:r.hostname||'(无)',v:+r.logs||0}}).sort(function(a,b){return b.v-a.v}).slice(0,8);var max=1;for(var i=0;i<rows.length;i++)if(rows[i].v>max)max=rows[i].v;$('#st-dev').innerHTML=rows.length?rows.map(function(r){return hbarHTML(r.k,r.v,max)}).join(''):'<span class="empty-note">无</span>';var bars=$('#st-dev').querySelectorAll('.hbar');for(var bi=0;bi<bars.length;bi++){(function(el){el.onclick=function(){S.filters.device=devExpr(el.dataset.l);renderDeviceChips();renderFilterStrip();runQuery()}})(bars[bi])}}else{$('#st-dev').innerHTML='<span class="empty-note">不可用</span>'}
     if(results[1].status==='fulfilled'){var rows2=parseNDJSON(results[1].value).map(function(r){return{k:String(r.severity),v:+r.logs||0}}).filter(function(r){return/^[0-7]$/.test(r.k)}).sort(function(a,b){return+a.k-+b.k});var max2=1;for(var j=0;j<rows2.length;j++)if(rows2[j].v>max2)max2=rows2[j].v;$('#st-sev').innerHTML=rows2.length?rows2.map(function(r){return hbarHTML(r.k+' '+sevLabel(r.k),r.v,max2,sevColor(r.k),true)}).join(''):'<span class="empty-note">无</span>';var bars2=$('#st-sev').querySelectorAll('.hbar');for(var bi2=0;bi2<bars2.length;bi2++){(function(el){el.onclick=function(){S.filters.sev=el.dataset.l.split(' ')[0];renderSevChips();renderFilterStrip();runQuery()}})(bars2[bi2])}}else{$('#st-sev').innerHTML='<span class="empty-note">不可用</span>'}
     if(SCENES[S.scene].iface&&S.rows.length){var cnt={};for(var ri=0;ri<S.rows.length;ri++){var m=S.rows[ri]._msg!=null?String(S.rows[ri]._msg):'';var mm;var re=new RegExp(RE_IFACE.source,'g');while((mm=re.exec(m))!==null)cnt[mm[0]]=(cnt[mm[0]]||0)+1}var rows3=Object.entries(cnt).sort(function(a,b){return b[1]-a[1]}).slice(0,8);var max3=1;for(var k=0;k<rows3.length;k++)if(rows3[k][1]>max3)max3=rows3[k][1];$('#st-if').innerHTML=rows3.length?rows3.map(function(r){return hbarHTML(r[0],r[1],max3)}).join(''):'<span class="empty-note">无</span>';var bars3=$('#st-if').querySelectorAll('.hbar');for(var bi3=0;bi3<bars3.length;bi3++){(function(el){el.onclick=function(){$('#ifacebox').value='~"'+el.dataset.l+'"';S.filters.iface='~"'+el.dataset.l+'"';renderFilterStrip();runQuery()}})(bars3[bi3])}}else{$('#st-if').innerHTML='<span class="empty-note">'+(SCENES[S.scene].iface?'先查询':'仅数通')+'</span>'}
@@ -548,11 +681,11 @@ $('#vrows').addEventListener('click',function(e){
   $('#d-focus').onclick=function(){if(data.hostname){S.filters.device=devExpr(data.hostname);renderDeviceChips();renderFilterStrip();runQuery();toast('聚焦 '+esc(data.hostname),'ok')}else toast('无 hostname','warn')};
   var ipbs=dp.querySelectorAll('.d-actions .btn[data-ip]');for(var xi=0;xi<ipbs.length;xi++){ipbs[xi].onclick=function(){addIP(this.getAttribute('data-ip'))}}
 });
-function correlate(e){var t=new Date(e._time).getTime();if(isNaN(t)){toast('无时间戳','warn');return}var start=new Date(t-60000).toISOString(),end=new Date(t+60000).toISOString();var q=e.hostname?devExpr(e.hostname):'*';toast('拉取 +-60s...','info',1500);api('/select/logsql/query',{query:q,start:start,end:end,limit:'500',sort:'asc'}).then(function(txt){S.rows=precompute(parseNDJSON(txt));deriveMeta();initVirtual();$('#cnt').textContent=fmtInt(S.rows.length);$('#meta').innerHTML='关联 / '+esc(e.hostname||'--')+' +-60s / '+S.rows.length+'条';toast('关联时间线 '+S.rows.length+' 条','ok')}).catch(function(err){toast('关联失败: '+esc(err.message),'err')})}
+function correlate(e){var t=new Date(e._time).getTime();if(isNaN(t)){toast('无时间戳','warn');return}var reqId=++S.reqSeqvar start=new Date(t-60000).toISOString(),end=new Date(t+60000).toISOString();var q=e.hostname?devExpr(e.hostname):'*';toast('拉取 +-60s...','info',1500);api('/select/logsql/query',{query:q,start:start,end:end,limit:'500',sort:'asc'}).then(function(txt){if(reqId!==S.reqSeq)return;S.window={start:start,end:end};S.rows=precompute(parseNDJSON(txt));deriveMeta();initVirtual();updateDiagnosis();$('#cnt').textContent=fmtInt(S.rows.length);$('#meta').innerHTML='关联 / '+esc(e.hostname||'--')+' +-60s / '+S.rows.length+'条';toast('关联时间线 '+S.rows.length+' 条','ok')}).catch(function(err){toast('关联失败: '+esc(err.message),'err')})}
 
 function toggleLive(){S.live?stopLive():startLive()}
 function startLive(){if(!S.connected){toast('请先连接','warn');return}S.live=true;S.liveLastTime=new Date().toISOString();$('#btn-live').textContent='停止跟踪';$('#btn-live').classList.remove('danger');$('#btn-live').classList.add('primary');$('#livebadge').classList.add('show');setStatus('warn','实时轮询中(3秒)');S.liveTimer=setInterval(pollLive,3000);toast('实时跟踪已启动, 每3秒轮询新日志','ok',2000)}
-function pollLive(){if(!S.live)return;var now=new Date().toISOString();var query=buildQuery();api('/select/logsql/query',{query:query,start:S.liveLastTime,end:now,limit:'100',sort:'desc'}).then(function(txt){var rows=parseNDJSON(txt);if(rows.length>0){precompute(rows);for(var i=rows.length-1;i>=0;i--){S.rows.unshift(rows[i])}if(S.rows.length>3000)S.rows=S.rows.slice(0,3000);deriveMeta();initVirtual();$('#cnt').textContent=fmtInt(S.rows.length)}S.liveLastTime=now}).catch(function(){})}
+function pollLive(){if(!S.live)return;var now=new Date().toISOString();var query=buildQuery();api('/select/logsql/query',{query:query,start:S.liveLastTime,end:now,limit:'100',sort:'desc'}).then(function(txt){var rows=parseNDJSON(txt);if(rows.length>0){precompute(rows);for(var i=rows.length-1;i>=0;i--){S.rows.unshift(rows[i])}if(S.rows.length>3000)S.rows=S.rows.slice(0,3000);deriveMeta();initVirtual();updateDiagnosis();$('#cnt').textContent=fmtInt(S.rows.length)}S.liveLastTime=now}).catch(function(){})}
 function stopLive(){S.live=false;if(S.liveTimer){clearInterval(S.liveTimer);S.liveTimer=null}$('#btn-live').textContent='实时跟踪';$('#btn-live').classList.add('danger');$('#btn-live').classList.remove('primary');$('#livebadge').classList.remove('show');setStatus('ok','已连接')}
 
 function renderFavs(){var box=$('#favs');box.innerHTML='';$('#favcnt').textContent=S.favs.length?' '+S.favs.length:'';if(!S.favs.length){box.innerHTML='<span class="empty-note">[收藏查询] 保存常用语句</span>';return}for(var i=0;i<S.favs.length;i++){(function(idx){var f=S.favs[idx];var b=document.createElement('button');b.className='preset';b.style.setProperty('--pc','var(--ac)');b.innerHTML='<b>'+esc(f.name)+'<span class="kbd" style="cursor:pointer">x</span></b><code>'+esc(f.q)+'</code>';b.querySelector('.kbd').onclick=function(ev){ev.stopPropagation();S.favs.splice(idx,1);saveCfg();renderFavs()};b.onclick=function(){$('#q').value=f.q;S.presetQ=f.q;if(S.connected)runQuery()};box.appendChild(b)})(i)}}
@@ -595,9 +728,9 @@ function testConn(){
 function toggleSidebar(){if(window.innerWidth<=1024){document.body.classList.toggle('side-open');$('#overlay').classList.toggle('show',document.body.classList.contains('side-open'))}else{document.body.classList.toggle('side-closed')}}
 
 function bind(){
-  $('#btn-run').onclick=runQuery;$('#btn-test').onclick=testConn;$('#btn-live').onclick=toggleLive;
+  $('#btn-run').onclick=runQuery;$('#btn-test').onclick=testConn;$('#btn-live').onclick=toggleLive;$('#btn-diagnose').onclick=runDiagnosis;
   $('#btn-side').onclick=toggleSidebar;$('#overlay').onclick=toggleSidebar;
-  $('#btn-clear').onclick=function(){S.rows=[];S.ips=[];S.selIdx=-1;initVirtual();$('#cnt').textContent='0';$('#qtime').textContent='';$('#detail').classList.remove('show')};
+  $('#btn-clear').onclick=function(){S.rows=[];S.devices=[];S.fields=[];S.ips=[];S.valCache=[];S.filters={sev:null,device:null,iface:'',ips:[],fields:new Set(),values:[]};S.window=null;S.selIdx=-1;$('#ifacebox').value='';renderSevChips();renderDeviceChips();renderIPChips();renderFieldChips();renderValueChips();renderFilterStrip();initVirtual();$('#cnt').textContent='0';$('#qtime').textContent='';$('#detail').classList.remove('show');updateDiagnosis()};
   $('#btn-json').onclick=exportNDJSON;$('#btn-csv').onclick=exportCSV;$('#btn-copyq').onclick=copyCurl;$('#btn-fav').onclick=addFav;
   $('#btn-stats').onclick=function(){var st=$('#stats');st.classList.toggle('collapsed');if(!st.classList.contains('collapsed')&&S.connected)loadStats(buildQuery(),timeParams())};
   $('#st-refresh').onclick=function(){if(S.connected)loadStats(buildQuery(),timeParams())};
@@ -610,13 +743,13 @@ function bind(){
   q.addEventListener('focus',buildSuggest);
   q.addEventListener('blur',function(){setTimeout(closeSuggest,150)});
   q.addEventListener('keydown',function(e){if(e.key==='ArrowDown'){e.preventDefault();sgSel=Math.min(sgSel+1,sgItems.length-1);renderSuggest()}else if(e.key==='ArrowUp'){e.preventDefault();sgSel=Math.max(sgSel-1,0);renderSuggest()}else if(e.key==='Enter'){if(sgSel>=0&&sgItems[sgSel]){sgItems[sgSel].apply();closeSuggest()}else{closeSuggest();if(S.connected)runQuery()}}else if(e.key==='Escape')closeSuggest()});
-  ['range','limit','sort'].forEach(function(id){$('#'+id).addEventListener('change',function(){saveCfg();if(S.connected)runQuery()})});
+  ['range','limit','sort'].forEach(function(id){$('#'+id).addEventListener('change',function(){if(id==='range')S.window=null;saveCfg();if(S.connected)runQuery()})});
   ['hl','hlif'].forEach(function(id){$('#'+id).addEventListener('change',function(){saveCfg();if(S.rows.length){precompute(S.rows);vsStart=-1;renderVirtual()}})});
-  $('#dense').addEventListener('change',function(){document.body.classList.toggle('dense',$('#dense').checked);saveCfg();vsStart=-1;renderVirtual()});
+  $('#dense').addEventListener('change',function(){document.body.classList.toggle('dense',$('#dense').checked);ROW_H=calcRowH();saveCfg();initVirtual()});
   $('#kbd').addEventListener('change',function(){saveCfg();$('#kbdhint').style.opacity=$('#kbd').checked?'1':'.3';toast($('#kbd').checked?'快捷键开':'快捷键关','ok',1200)});
   $('#baseurl').addEventListener('change',saveCfg);
   document.addEventListener('keydown',function(e){if(!$('#kbd').checked)return;var inI=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);if(e.key==='/'&&!inI){e.preventDefault();$('#q').focus()}if((e.ctrlKey||e.metaKey)&&/^[1-9]$/.test(e.key)){e.preventDefault();applyPreset(+e.key-1)}});
-  setInterval(function(){var d=new Date();$('#clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())},1000);
+  window.addEventListener('resize',function(){var n=calcRowH();if(n!==ROW_H){ROW_H=n;initVirtual()}else{renderVirtual()}});setInterval(function(){var d=new Date();$('#clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())},1000);
 }
 
 (function init(){
@@ -626,7 +759,7 @@ function bind(){
   $('#ifacebox').style.display=SCENES[S.scene].iface?'':'none';
   $('#kbdhint').style.opacity=$('#kbd').checked?'1':'.3';
   document.body.classList.toggle('dense',$('#dense').checked);
-  renderScenes();renderPresets();renderSevChips();renderIPChips();renderValueChips();renderFavs();renderFilterStrip();bind();
+  renderScenes();renderPresets();renderSevChips();renderIPChips();renderValueChips();renderFavs();renderFilterStrip();bind();updateDiagnosis();
   setStatus('','未连接 - 填写地址后点击 [连接]');
 })();
 </script>
