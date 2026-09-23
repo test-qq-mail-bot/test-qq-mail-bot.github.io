@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOTP 验证码生成器</title>
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --card-bg: #ffffff;
+            --text: #2d3436;
+            --text-secondary: #636e72;
+            --accent: #4a6cf7;
+            --accent-light: #eef1ff;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            --border: #e2e8f0;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.10);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.2s ease;
+            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1a1b23;
+                --card-bg: #252631;
+                --text: #e8e8ed;
+                --text-secondary: #a0a4b0;
+                --accent: #6c8cff;
+                --accent-light: #1e2444;
+                --danger: #ff6b6b;
+                --warning: #ffb142;
+                --success: #44bd6e;
+                --border: #353748;
+                --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+                --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.35);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .header-icon {
+            font-size: 42px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text);
+        }
+        .header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Account Cards */
+        .accounts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .account-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all var(--transition);
+            border: 1.5px solid var(--border);
+            position: relative;
+            cursor: default;
+        }
+        .account-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: #c8d0e0;
+        }
+        @media (prefers-color-scheme: dark) {
+            .account-card:hover {
+                border-color: #4a4e60;
+            }
+        }
+        .account-card.expiring {
+            border-color: var(--warning) !important;
+            animation: subtlePulse 0.8s ease-in-out;
+        }
+        .account-card.expired {
+            border-color: var(--danger) !important;
+            animation: subtlePulse 0.8s ease-in-out;
+        }
+
+        @keyframes subtlePulse {
+            0%,
+            100% {
+                box-shadow: var(--shadow);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(243, 156, 18, 0.12);
+            }
+        }
+        @keyframes subtlePulseRed {
+            0%,
+            100% {
+                box-shadow: var(--shadow);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(231, 76, 60, 0.12);
+            }
+        }
+        .account-card.expired {
+            animation: subtlePulseRed 0.8s ease-in-out;
+        }
+
+        .account-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .account-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .account-issuer {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .totp-code {
+            font-family: var(--font-mono);
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all var(--transition);
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin: 2px -8px;
+            position: relative;
+            white-space: nowrap;
+        }
+        .totp-code:hover {
+            background: var(--accent-light);
+        }
+        .totp-code:active {
+            transform: scale(0.96);
+            background: var(--accent-light);
+        }
+        .totp-code.copied {
+            color: var(--success);
+            animation: copyFlash 0.5s ease;
+        }
+        @keyframes copyFlash {
+            0%,
+            100% {
+                color: var(--accent);
+            }
+            30% {
+                color: var(--success);
+                transform: scale(1.05);
+            }
+            70% {
+                color: var(--success);
+            }
+        }
+        .totp-code.code-updated {
+            animation: codePopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes codePopIn {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            40% {
+                transform: scale(1.08);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Timer Ring */
+        .timer-ring-container {
+            flex-shrink: 0;
+            position: relative;
+            width: 48px;
+            height: 48px;
+        }
+        .timer-ring-svg {
+            width: 48px;
+            height: 48px;
+            transform: rotate(-90deg);
+        }
+        .timer-ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 4;
+        }
+        .timer-ring-fg {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease, stroke-dashoffset 0.45s linear;
+        }
+        .timer-ring-fg.warning {
+            stroke: var(--warning);
+        }
+        .timer-ring-fg.danger {
+            stroke: var(--danger);
+        }
+        .timer-seconds {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+        .timer-seconds.warning {
+            color: var(--warning);
+        }
+        .timer-seconds.danger {
+            color: var(--danger);
+        }
+
+        /* Action Buttons */
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btn-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            padding: 0;
+        }
+        .btn-icon:hover {
+            background: #f1f2f6;
+            color: var(--text);
+        }
+        @media (prefers-color-scheme: dark) {
+            .btn-icon:hover {
+                background: #353748;
+                color: #fff;
+            }
+        }
+        .btn-icon.danger:hover {
+            background: #ffeaea;
+            color: var(--danger);
+        }
+        @media (prefers-color-scheme: dark) {
+            .btn-icon.danger:hover {
+                background: #3d1f1f;
+                color: var(--danger);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 30px;
+            color: var(--text-secondary);
+        }
+        .empty-state .icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+        .empty-state h3 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        .empty-state p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Add Button */
+        .add-btn-wrapper {
+            text-align: center;
+        }
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            border: 2px dashed var(--border);
+            background: var(--card-bg);
+            color: var(--accent);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            letter-spacing: -0.2px;
+            box-shadow: var(--shadow);
+        }
+        .btn-add:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+        .btn-add:active {
+            transform: scale(0.97);
+        }
+        .btn-add .plus-icon {
+            font-size: 1.3rem;
+            font-weight: 300;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 24px 22px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal h2 {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        .modal .modal-desc {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            font-size: 0.95rem;
+            background: var(--bg);
+            color: var(--text);
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+        .form-group input::placeholder {
+            color: #b0b5c0;
+        }
+        .form-hint {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+            letter-spacing: -0.2px;
+        }
+        .btn-cancel {
+            background: var(--bg);
+            color: var(--text-secondary);
+        }
+        .btn-cancel:hover {
+            background: #e8e9f0;
+            color: var(--text);
+        }
+        @media (prefers-color-scheme: dark) {
+            .btn-cancel:hover {
+                background: #3a3b48;
+                color: #fff;
+            }
+        }
+        .btn-save {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-save:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(74, 108, 247, 0.35);
+        }
+        .btn-save:active {
+            transform: scale(0.96);
+        }
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2d3436;
+            color: #fff;
+            padding: 11px 22px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 200;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            letter-spacing: -0.2px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        @media (prefers-color-scheme: dark) {
+            .toast {
+                background: #e8e8ed;
+                color: #1a1b23;
+            }
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .account-card {
+                padding: 14px 16px;
+                gap: 10px;
+            }
+            .totp-code {
+                font-size: 1.7rem;
+                letter-spacing: 2px;
+            }
+            .timer-ring-container {
+                width: 40px;
+                height: 40px;
+            }
+            .timer-ring-svg {
+                width: 40px;
+                height: 40px;
+            }
+            .timer-seconds {
+                font-size: 0.7rem;
+            }
+            .btn-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+            }
+            .card-actions {
+                gap: 2px;
+            }
+            .header h1 {
+                font-size: 1.35rem;
+            }
+            .modal {
+                padding: 22px 18px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <span class="header-icon">🔐</span>
+            <h1>TOTP 验证码生成器</h1>
+            <p class="subtitle">基于时间的一次性密码 · 数据仅存储在本地</p>
+        </div>
+
+        <!-- Accounts List -->
+        <div class="accounts-list" id="accountsList">
+            <!-- Dynamically rendered -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <span class="icon">📱</span>
+            <h3>还没有账户</h3>
+            <p>点击下方按钮添加您的第一个<br>双重验证账户</p>
+        </div>
+
+        <!-- Add Button -->
+        <div class="add-btn-wrapper">
+            <button class="btn-add" id="btnAdd" title="添加账户">
+                <span class="plus-icon">+</span> 添加账户
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none;">
+        <div class="modal">
+            <h2>添加账户</h2>
+            <p class="modal-desc">输入账户信息和 Base32 密钥，或直接粘贴 <code>otpauth://</code> URI</p>
+            <div class="form-group">
+                <label for="inputURI">密钥或 URI（推荐）</label>
+                <input type="text" id="inputURI" placeholder="otpauth://totp/... 或 Base32 密钥"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <p class="form-hint">支持 otpauth URI 或纯 Base32 密钥（如 JBSWY3DPEHPK3PXP）</p>
+            </div>
+            <div class="form-group">
+                <label for="inputName">账户名称</label>
+                <input type="text" id="inputName" placeholder="例如：Google、GitHub"
+                autocomplete="off">
+                <p class="form-hint">从 URI 解析时可自动填充</p>
+            </div>
+            <div class="form-group">
+                <label for="inputDigits">验证码位数</label>
+                <select id="inputDigits">
+                    <option value="6" selected>6 位</option>
+                    <option value="8">8 位</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputAlgorithm">哈希算法</label>
+                <select id="inputAlgorithm">
+                    <option value="SHA-1" selected>SHA-1（最常用）</option>
+                    <option value="SHA-256">SHA-256</option>
+                    <option value="SHA-512">SHA-512</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="btnCancel">取消</button>
+                <button class="btn btn-save" id="btnSave">添加账户</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            // ==================== DOM Elements ====================
+            const accountsList = document.getElementById('accountsList');
+            const emptyState = document.getElementById('emptyState');
+            const btnAdd = document.getElementById('btnAdd');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const inputURI = document.getElementById('inputURI');
+            const inputName = document.getElementById('inputName');
+            const inputDigits = document.getElementById('inputDigits');
+            const inputAlgorithm = document.getElementById('inputAlgorithm');
+            const btnCancel = document.getElementById('btnCancel');
+            const btnSave = document.getElementById('btnSave');
+            const toast = document.getElementById('toast');
+
+            // ==================== State ====================
+            const STORAGE_KEY = 'totp_accounts_v2';
+            let accounts = [];
+            let toastTimer = null;
+            let updateInterval = null;
+            let previousPeriodMap = {}; // accountId -> last counter value
+
+            // ==================== Load / Save ====================
+            function loadAccounts() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        accounts = JSON.parse(raw);
+                        // Validate and ensure all accounts have required fields
+                        accounts = accounts.filter(acc =>
+                            acc && acc.id && acc.name && acc.secret &&
+                            typeof acc.secret === 'string' && acc.secret.length > 0
+                        );
+                        // Ensure defaults
+                        accounts.forEach(acc => {
+                            acc.digits = acc.digits || 6;
+                            acc.algorithm = acc.algorithm || 'SHA-1';
+                            acc.issuer = acc.issuer || '';
+                        });
+                    } else {
+                        accounts = [];
+                    }
+                } catch (e) {
+                    console.warn('无法加载账户数据:', e);
+                    accounts = [];
+                }
+                previousPeriodMap = {};
+                accounts.forEach(acc => {
+                    previousPeriodMap[acc.id] = -1;
+                });
+            }
+
+            function saveAccounts() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+                } catch (e) {
+                    console.warn('无法保存账户数据:', e);
+                    showToast('存储空间不足，请清理旧账户', false);
+                }
+            }
+
+            // ==================== Base32 Decode ====================
+            function base32Decode(base32Str) {
+                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+                // Clean input: uppercase, remove non-base32 chars (keep A-Z, 2-7)
+                let cleaned = base32Str.toUpperCase().replace(/[^A-Z2-7]/g, '');
+                if (cleaned.length === 0) {
+                    throw new Error('密钥为空或包含无效字符');
+                }
+                // Pad to multiple of 8 for proper decoding
+                const padLen = (8 - (cleaned.length % 8)) % 8;
+                cleaned = cleaned + '='.repeat(padLen);
+
+                let bits = '';
+                for (let i = 0; i < cleaned.length; i++) {
+                    const ch = cleaned[i];
+                    if (ch === '=') break; // Stop at padding
+                    const val = alphabet.indexOf(ch);
+                    if (val === -1) {
+                        throw new Error('无效的 Base32 字符: ' + ch);
+                    }
+                    bits += val.toString(2).padStart(5, '0');
+                }
+                const bytes = [];
+                for (let i = 0; i + 8 <= bits.length; i += 8) {
+                    bytes.push(parseInt(bits.substring(i, i + 8), 2));
+                }
+                if (bytes.length === 0) {
+                    throw new Error('解码后密钥为空');
+                }
+                return new Uint8Array(bytes);
+            }
+
+            // ==================== OTP URI Parser ====================
+            function parseOTPAuthURI(uri) {
+                // Format: otpauth://totp/Issuer:AccountName?secret=...&issuer=...&algorithm=...&digits=...&period=...
+                const urlPattern = /^otpauth:\/\/totp\/(.+?)\?(.+)$/i;
+                const match = uri.trim().match(urlPattern);
+                if (!match) return null;
+
+                const label = decodeURIComponent(match[1]);
+                const paramsStr = match[2];
+                const params = new URLSearchParams(paramsStr);
+
+                const secret = params.get('secret');
+                if (!secret) return null;
+
+                let name = label;
+                let issuer = params.get('issuer') || '';
+                // Label may be "Issuer:AccountName"
+                if (label.includes(':') && !issuer) {
+                    const parts = label.split(':');
+                    issuer = parts[0].trim();
+                    name = parts.slice(1).join(':').trim();
+                } else if (label.includes(':') && issuer) {
+                    const parts = label.split(':');
+                    name = parts.slice(1).join(':').trim();
+                }
+                if (!name || name.length === 0) {
+                    name = issuer || '未命名账户';
+                }
+
+                const digits = parseInt(params.get('digits')) || 6;
+                const algorithm = params.get('algorithm') || 'SHA-1';
+                const period = parseInt(params.get('period')) || 30;
+
+                return {
+                    name,
+                    issuer,
+                    secret,
+                    digits: [6, 8].includes(digits) ? digits : 6,
+                    algorithm: ['SHA-1', 'SHA-256', 'SHA-512'].includes(algorithm) ? algorithm : 'SHA-1',
+                    period: period > 0 ? period : 30,
+                };
+            }
+
+            // ==================== HMAC using Web Crypto API ====================
+            async function hmacSign(algorithm, keyBytes, messageBytes) {
+                const hashName = algorithm; // 'SHA-1', 'SHA-256', 'SHA-512'
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw',
+                    keyBytes,
+                    { name: 'HMAC', hash: hashName },
+                    false,
+                    ['sign']
+                );
+                const signature = await crypto.subtle.sign(
+                    'HMAC',
+                    cryptoKey,
+                    messageBytes
+                );
+                return new Uint8Array(signature);
+            }
+
+            // ==================== Generate TOTP ====================
+            async function generateTOTP(secretBase32, digits, algorithm, period) {
+                const keyBytes = base32Decode(secretBase32);
+                const counter = Math.floor(Date.now() / 1000 / period);
+                const counterBytes = new Uint8Array(8);
+                // Write counter as big-endian 8-byte integer
+                let c = counter;
+                for (let i = 7; i >= 0; i--) {
+                    counterBytes[i] = c & 0xFF;
+                    c = Math.floor(c / 256);
+                }
+                const hmacResult = await hmacSign(algorithm, keyBytes, counterBytes);
+                // Dynamic truncation
+                const offset = hmacResult[hmacResult.length - 1] & 0x0F;
+                const binary =
+                    ((hmacResult[offset] & 0x7F) << 24) |
+                    ((hmacResult[offset + 1] & 0xFF) << 16) |
+                    ((hmacResult[offset + 2] & 0xFF) << 8) |
+                    (hmacResult[offset + 3] & 0xFF);
+                const otp = binary % Math.pow(10, digits);
+                return {
+                    code: otp.toString().padStart(digits, '0'),
+                    counter: counter,
+                };
+            }
+
+            // ==================== UI Helpers ====================
+            function showToast(message, isSuccess = true) {
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.textContent = message;
+                toast.className = 'toast ' + (isSuccess ? 'success' : '');
+                // Force reflow
+                toast.offsetHeight;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    toastTimer = null;
+                }, 1800);
+            }
+
+            function getRemainingSeconds(period = 30) {
+                const now = Date.now() / 1000;
+                return period - (now % period);
+            }
+
+            // ==================== Render ====================
+            function renderAccountsList() {
+                if (accounts.length === 0) {
+                    accountsList.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+
+                const period = 30; // All accounts use 30-second period
+                const remaining = getRemainingSeconds(period);
+                const circumference = 2 * Math.PI * 18; // r=18 in 40x40 viewBox
+
+                let html = '';
+                accounts.forEach((acc, index) => {
+                    const remainingForAcc = remaining; // same for all
+                    const offset = circumference * (1 - remainingForAcc / period);
+                    let ringClass = '';
+                    let secondsClass = '';
+                    if (remainingForAcc <= 5) {
+                        ringClass = 'danger';
+                        secondsClass = 'danger';
+                    } else if (remainingForAcc <= 12) {
+                        ringClass = 'warning';
+                        secondsClass = 'warning';
+                    }
+                    const cardClass = remainingForAcc <= 3 ? 'expired' : (remainingForAcc <= 7 ?
+                        'expiring' : '');
+
+                    html += `
+                    <div class="account-card ${cardClass}" data-id="${acc.id}" data-index="${index}">
+                        <div class="account-info">
+                            <div class="account-name" title="${escapeHtml(acc.name)}">${escapeHtml(acc.name)}</div>
+                            ${acc.issuer ? `<div class="account-issuer">${escapeHtml(acc.issuer)}</div>` : ''}
+                            <div class="totp-code" data-index="${index}" title="点击复制验证码">••••••</div>
+                        </div>
+                        <div class="timer-ring-container">
+                            <svg class="timer-ring-svg" viewBox="0 0 40 40">
+                                <circle class="timer-ring-bg" cx="20" cy="20" r="18"/>
+                                <circle class="timer-ring-fg ${ringClass}" cx="20" cy="20" r="18"
+                                    stroke-dasharray="${circumference.toFixed(3)}"
+                                    stroke-dashoffset="${offset.toFixed(3)}"/>
+                            </svg>
+                            <span class="timer-seconds ${secondsClass}">${Math.ceil(remainingForAcc)}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-icon copy-btn" data-index="${index}" title="复制验证码">
+                                📋
+                            </button>
+                            <button class="btn-icon danger delete-btn" data-index="${index}" title="删除账户">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>`;
+                });
+                accountsList.innerHTML = html;
+
+                // Bind events
+                accountsList.querySelectorAll('.totp-code').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        copyCode(idx, this);
+                    });
+                });
+                accountsList.querySelectorAll('.copy-btn').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        const codeEl = accountsList.querySelector(
+                            `.totp-code[data-index="${idx}"]`);
+                        copyCode(idx, codeEl);
+                    });
+                });
+                accountsList.querySelectorAll('.delete-btn').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        deleteAccount(idx);
+                    });
+                });
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            async function updateAllTOTPCodes() {
+                if (accounts.length === 0) return;
+                const period = 30;
+                const remaining = getRemainingSeconds(period);
+                const circumference = 2 * Math.PI * 18;
+
+                const cards = accountsList.querySelectorAll('.account-card');
+                cards.forEach(card => {
+                    const idx = parseInt(card.getAttribute('data-index'));
+                    if (isNaN(idx) || idx >= accounts.length) return;
+                    const acc = accounts[idx];
+                    const remainingForAcc = remaining;
+
+                    // Update ring
+                    const offset = circumference * (1 - remainingForAcc / period);
+                    const ringFg = card.querySelector('.timer-ring-fg');
+                    const secondsSpan = card.querySelector('.timer-seconds');
+                    if (ringFg) {
+                        ringFg.setAttribute('stroke-dashoffset', offset.toFixed(3));
+                        ringFg.className = 'timer-ring-fg';
+                        if (remainingForAcc <= 5) ringFg.classList.add('danger');
+                        else if (remainingForAcc <= 12) ringFg.classList.add('warning');
+                    }
+                    if (secondsSpan) {
+                        secondsSpan.textContent = Math.ceil(remainingForAcc);
+                        secondsSpan.className = 'timer-seconds';
+                        if (remainingForAcc <= 5) secondsSpan.classList.add('danger');
+                        else if (remainingForAcc <= 12) secondsSpan.classList.add('warning');
+                    }
+
+                    // Update card border class
+                    card.classList.remove('expiring', 'expired');
+                    if (remainingForAcc <= 3) card.classList.add('expired');
+                    else if (remainingForAcc <= 7) card.classList.add('expiring');
+
+                    // Check if TOTP needs updating
+                    const currentCounter = Math.floor(Date.now() / 1000 / period);
+                    const prevCounter = previousPeriodMap[acc.id];
+                    if (prevCounter !== currentCounter) {
+                        previousPeriodMap[acc.id] = currentCounter;
+                        // Re-generate TOTP
+                        generateTOTP(acc.secret, acc.digits, acc.algorithm, acc.period || period)
+                            .then(result => {
+                                const codeEl = card.querySelector('.totp-code');
+                                if (codeEl && codeEl.textContent !== result.code) {
+                                    codeEl.textContent = result.code;
+                                    codeEl.classList.remove('code-updated');
+                                    void codeEl.offsetWidth;
+                                    codeEl.classList.add('code-updated');
+                                } else if (codeEl && codeEl.textContent === '••••••') {
+                                    codeEl.textContent = result.code;
+                                }
+                            })
+                            .catch(err => {
+                                const codeEl = card.querySelector('.totp-code');
+                                if (codeEl) codeEl.textContent = '错误';
+                                console.error('TOTP生成失败:', acc.name, err);
+                            });
+                    }
+                });
+            }
+
+            async function initialLoadTOTPCodes() {
+                if (accounts.length === 0) return;
+                const period = 30;
+                const currentCounter = Math.floor(Date.now() / 1000 / period);
+
+                const promises = accounts.map(async (acc, index) => {
+                    previousPeriodMap[acc.id] = currentCounter;
+                    try {
+                        const result = await generateTOTP(acc.secret, acc.digits, acc.algorithm, acc
+                            .period || period);
+                        return { index, code: result.code };
+                    } catch (err) {
+                        console.error('初始TOTP生成失败:', acc.name, err);
+                        return { index, code: '错误' };
+                    }
+                });
+
+                const results = await Promise.all(promises);
+                results.forEach(({ index, code }) => {
+                    const codeEl = accountsList.querySelector(`.totp-code[data-index="${index}"]`);
+                    if (codeEl) {
+                        codeEl.textContent = code;
+                    }
+                });
+            }
+
+            async function copyCode(index, codeEl) {
+                if (index < 0 || index >= accounts.length) return;
+                const acc = accounts[index];
+                try {
+                    const period = acc.period || 30;
+                    const result = await generateTOTP(acc.secret, acc.digits, acc.algorithm, period);
+                    await navigator.clipboard.writeText(result.code);
+                    if (codeEl) {
+                        codeEl.classList.add('copied');
+                        setTimeout(() => codeEl.classList.remove('copied'), 600);
+                    }
+                    showToast('已复制: ' + result.code, true);
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    // Fallback: try to copy whatever is displayed
+                    const textToCopy = codeEl ? codeEl.textContent : '';
+                    if (textToCopy && textToCopy !== '••••••' && textToCopy !== '错误') {
+                        try {
+                            await navigator.clipboard.writeText(textToCopy);
+                            showToast('已复制: ' + textToCopy, true);
+                            return;
+                        } catch (e2) {}
+                    }
+                    showToast('复制失败，请检查剪贴板权限', false);
+                }
+            }
+
+            function deleteAccount(index) {
+                if (index < 0 || index >= accounts.length) return;
+                const acc = accounts[index];
+                if (confirm(`确定要删除账户「${acc.name}」吗？\n此操作不可恢复。`)) {
+                    const accId = acc.id;
+                    accounts.splice(index, 1);
+                    delete previousPeriodMap[accId];
+                    saveAccounts();
+                    renderAccountsList();
+                    initialLoadTOTPCodes();
+                    showToast('已删除: ' + acc.name, true);
+                }
+            }
+
+            // ==================== Modal Handlers ====================
+            function openModal() {
+                inputURI.value = '';
+                inputName.value = '';
+                inputDigits.value = '6';
+                inputAlgorithm.value = 'SHA-1';
+                modalOverlay.style.display = 'flex';
+                inputURI.focus();
+            }
+
+            function closeModal() {
+                modalOverlay.style.display = 'none';
+            }
+
+            function addAccount() {
+                const uriValue = inputURI.value.trim();
+                const nameValue = inputName.value.trim();
+                const digits = parseInt(inputDigits.value) || 6;
+                const algorithm = inputAlgorithm.value || 'SHA-1';
+
+                let finalName = nameValue;
+                let finalSecret = '';
+                let finalIssuer = '';
+                let finalDigits = digits;
+                let finalAlgorithm = algorithm;
+                let finalPeriod = 30;
+
+                // Try to parse as otpauth URI first
+                const parsed = parseOTPAuthURI(uriValue);
+                if (parsed) {
+                    finalSecret = parsed.secret;
+                    finalName = nameValue || parsed.name;
+                    finalIssuer = parsed.issuer || '';
+                    finalDigits = parsed.digits;
+                    finalAlgorithm = parsed.algorithm;
+                    finalPeriod = parsed.period;
+                } else if (uriValue.length > 0) {
+                    // Treat as raw Base32 secret
+                    finalSecret = uriValue;
+                    finalName = nameValue || '未命名账户';
+                    finalIssuer = '';
+                } else {
+                    showToast('请输入密钥或 otpauth URI', false);
+                    return;
+                }
+
+                if (!finalName || finalName.trim().length === 0) {
+                    finalName = '未命名账户';
+                }
+                finalName = finalName.trim();
+
+                // Validate secret
+                if (!finalSecret || finalSecret.trim().length === 0) {
+                    showToast('密钥不能为空', false);
+                    return;
+                }
+                finalSecret = finalSecret.trim();
+
+                // Validate Base32
+                try {
+                    const testBytes = base32Decode(finalSecret);
+                    if (testBytes.length < 8) {
+                        if (!confirm('密钥长度较短（小于8字节），可能不够安全。是否继续添加？')) {
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    showToast('密钥格式无效: ' + e.message, false);
+                    return;
+                }
+
+                // Check for duplicate
+                const duplicate = accounts.find(acc =>
+                    acc.secret.toUpperCase().replace(/[^A-Z2-7]/g, '') ===
+                    finalSecret.toUpperCase().replace(/[^A-Z2-7]/g, '') &&
+                    acc.name === finalName
+                );
+                if (duplicate) {
+                    if (!confirm('已存在相同名称和密钥的账户，是否仍然添加？')) {
+                        return;
+                    }
+                }
+
+                const newAccount = {
+                    id: 'acc_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
+                    name: finalName,
+                    issuer: finalIssuer,
+                    secret: finalSecret,
+                    digits: finalDigits,
+                    algorithm: finalAlgorithm,
+                    period: finalPeriod,
+                };
+
+                accounts.push(newAccount);
+                previousPeriodMap[newAccount.id] = Math.floor(Date.now() / 1000 / finalPeriod);
+                saveAccounts();
+                closeModal();
+                renderAccountsList();
+                initialLoadTOTPCodes();
+                showToast('已添加: ' + finalName, true);
+            }
+
+            // ==================== Event Listeners ====================
+            btnAdd.addEventListener('click', openModal);
+            btnCancel.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+            btnSave.addEventListener('click', addAccount);
+
+            // Auto-parse URI as user types
+            inputURI.addEventListener('input', function() {
+                const val = this.value.trim();
+                const parsed = parseOTPAuthURI(val);
+                if (parsed && !inputName.value) {
+                    inputName.value = parsed.name;
+                    inputDigits.value = parsed.digits;
+                    inputAlgorithm.value = parsed.algorithm;
+                }
+            });
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modalOverlay.style.display === 'flex') {
+                    closeModal();
+                }
+                if (e.key === 'Enter' && modalOverlay.style.display === 'flex') {
+                    addAccount();
+                }
+            });
+
+            // ==================== Check Web Crypto Availability ====================
+            function checkCryptoAvailability() {
+                if (typeof crypto === 'undefined' || typeof crypto.subtle === 'undefined') {
+                    document.body.innerHTML = `
+                        <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center;font-family:sans-serif;">
+                            <div>
+                                <h2 style="color:#e74c3c;">⚠️ 环境不支持</h2>
+                                <p style="color:#636e72;max-width:400px;margin:10px auto;line-height:1.6;">
+                                    此页面需要使用 <strong>Web Crypto API</strong>，该 API 仅在安全上下文（HTTPS 或 localhost）中可用。
+                                </p>
+                                <p style="color:#636e72;">
+                                    请通过 <code style="background:#f0f0f0;padding:3px 8px;border-radius:4px;">http://localhost</code> 访问此页面。
+                                </p>
+                            </div>
+                        </div>`;
+                    return false;
+                }
+                return true;
+            }
+
+            // ==================== Initialize ====================
+            async function init() {
+                if (!checkCryptoAvailability()) return;
+
+                loadAccounts();
+                renderAccountsList();
+                await initialLoadTOTPCodes();
+
+                // Update every 500ms for smooth ring animation
+                updateInterval = setInterval(() => {
+                    updateAllTOTPCodes();
+                }, 500);
+
+                // Also update on visibility change (when user returns to tab)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        updateAllTOTPCodes();
+                    }
+                });
+
+                console.log('✅ TOTP 验证码生成器已就绪');
+                console.log('   - 账户数量:', accounts.length);
+                console.log('   - 数据存储: localStorage (仅本地)');
+                console.log('   - 更新频率: 每500ms');
+            }
+
+            // ==================== Start ====================
+            init().catch(err => {
+                console.error('初始化失败:', err);
+                document.body.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center;font-family:sans-serif;">
+                        <div>
+                            <h2 style="color:#e74c3c;">初始化失败</h2>
+                            <p style="color:#636e72;">${err.message}</p>
+                        </div>
+                    </div>`;
+            });
+        })();
+    </script>
+</body>
+</html>
