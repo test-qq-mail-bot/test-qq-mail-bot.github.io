@@ -663,7 +663,7 @@
       const actionHtml = e === "md" || e === "markdown"
         ? '<a class="card-action" href="#md=' + encodeURIComponent(file.path) + '" data-md="' + encodeURIComponent(file.path) + '">阅读文档 →</a>'
         : e === "html" || e === "htm"
-          ? '<a class="card-action" href="' + encodeURI(file.path) + '">打开工具 →</a>'
+          ? '<a class="card-action" href="' + encodeURI(file.path) + '" target="_blank" rel="noopener noreferrer">打开工具 ↗</a>'
           : '<a class="card-action" href="' + RAW_BASE + file.path.split("/").map(encodeURIComponent).join("/") + '" target="_blank" rel="noopener">打开文件 →</a>';
 
       card.innerHTML =
@@ -736,7 +736,7 @@
               action = '<a class="file-link" href="#md=' + encodeURIComponent(file.path) +
                 '" data-md="' + encodeURIComponent(file.path) + '">阅读</a>';
             } else if (e === "html" || e === "htm") {
-              action = '<a class="file-link" href="' + encodeURI(file.path) + '">打开</a>';
+              action = '<a class="file-link" href="' + encodeURI(file.path) + '" target="_blank" rel="noopener noreferrer">新标签页打开 ↗</a>';
             } else {
               action = '<a class="file-link" href="' + RAW_BASE +
                 file.path.split("/").map(encodeURIComponent).join("/") +
