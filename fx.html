@@ -108,8 +108,8 @@ function fillSelects(type){
   const data=type==="boc"?state.boc.rates:state.hk.rates;
   const a=document.getElementById(type+"From"), b=document.getElementById(type+"To");
   const oldA=a.value,oldB=b.value;a.innerHTML="";b.innerHTML="";
-  const codes=[...data.keys()].sort((x,y)=>(x==="CNY"?-1:x==="HKD"?-1:0)-(y==="CNY"?-1:y==="HKD"?-1:0)||x.localeCompare(y));
-  for(const c of codes){const label=type==="boc"?(codeNames[c]||data.get(c).name||c):(data.get(c).name||codeNames[c]||c);addOption(a,c,label);addOption(b,c,label)}
+  const codes=[...new Set((type==="boc"?["CNY",...data.keys()]:["HKD",...data.keys()]))].sort((x,y)=>(x==="CNY"?-1:x==="HKD"?-1:0)-(y==="CNY"?-1:y==="HKD"?-1:0)||x.localeCompare(y));
+  for(const c of codes){const label=codeNames[c]||data.get(c)?.name||c;addOption(a,c,label);addOption(b,c,label)}
   if(codes.includes(oldA))a.value=oldA;else a.value=type==="boc"?"CNY":"HKD";
   if(codes.includes(oldB))b.value=oldB;else b.value=type==="boc"?"USD":"CNY";
   type==="boc"?calculateBoc():calculateHk();
