@@ -67,7 +67,7 @@ const JINA = "https://r.jina.ai/";
 const BOC_URL = "https://www.boc.cn/sourcedb/whpj/";
 const BOC_PAGES = Array.from({length:10},(_,i)=>i===0?BOC_URL:BOC_URL+"index_"+i+".html");
 const HK_MAIN = "https://www.bochk.com/sc/investment/rates/hkdrates.html";
-const HK_DATA = "https://www.bochk.com/whk/rates/exchangeRatesForCurrency/exchangeRatesForCurrency-input.action?lang=sc";
+const HK_DATA = "https://www.bochk.com/whk/rates/exchangeRatesHKD/exchangeRatesHKD-input.action?lang=cn";
 
 const state = {
   boc:{mode:"fx", rates:new Map(), updated:""},
@@ -168,7 +168,7 @@ function renderBocTable(){
 function renderHkTable(){
   const rows=[...state.hk.rates.values()].sort((a,b)=>a.code.localeCompare(b.code));
   if(!rows.length){document.getElementById("hkTable").innerHTML='<div class="error">没有读取到中银香港牌价表。</div>';return}
-  let h='<div class="table-title">当前抓取的中银香港牌价</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>客户卖出</th><th>客户买入</th></tr></thead><tbody>';
+  let h='<div class="table-title">当前抓取的中银香港牌价（每 1 外币兑港元）</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>客户卖出</th><th>客户买入</th></tr></thead><tbody>';
   for(const r of rows)h+='<tr><td>'+esc(r.code+" · "+r.name)+'</td><td>'+fmt(r.sell)+'</td><td>'+fmt(r.buy)+'</td></tr>';
   document.getElementById("hkTable").innerHTML=h+"</tbody></table></div>";
 }
@@ -208,13 +208,24 @@ async function fetchHk(){
       try{const r=await fetch(jina(u),{cache:"no-store"});if(r.ok){markdown=await r.text();if(markdown.includes("Customer Buy")||markdown.includes("客户买入")||markdown.includes("客户买入价"))break}}catch(_){}
     }
     const rows=parseMarkdownTable(markdown), map=new Map();
+    const hkNameToCode = {
+      "人民币(在岸)":"CNY","人民币(离岸)":"CNH","人民币":"CNY",
+      "美元":"USD","英镑":"GBP","日圆":"JPY","日元":"JPY","澳元":"AUD","纽元":"NZD",
+      "加元":"CAD","欧罗":"EUR","欧元":"EUR","瑞士法郎":"CHF","丹麦克郎":"DKK","丹麦克朗":"DKK",
+      "挪威克郎":"NOK","挪威克朗":"NOK","瑞典克郎":"SEK","瑞典克朗":"SEK",
+      "新加坡元":"SGD","泰国铢":"THB","文莱元":"BND","南非兰特":"ZAR"
+    };
     for(const row of rows){
       if(row.length<3)continue;
-      const code=textNorm(row[0]).toUpperCase();
-      if(!/^[A-Z]{3}$/.test(code))continue;
+      const rawName=textNorm(row[0]).replace(/\\*$/,"");
+      const code = /^[A-Z]{3}$/.test(rawName.toUpperCase()) ? rawName.toUpperCase() : hkNameToCode[rawName];
       const sell=num(row[1]),buy=num(row[2]);
-      if(sell!=null&&buy!=null)map.set(code,{code,name:codeNames[code]||code,sell,buy});
+      if(code&&sell!=null&&buy!=null){
+        map.set(code,{code,name:codeNames[code]||rawName,sell,buy});
+      }
     }
+    // HKD 是该页面的基准货币，官网表格不会列出一行 HKD，因此计算器必须主动加入。
+    if(!map.has("HKD")) map.set("HKD",{code:"HKD",name:"港币",sell:1,buy:1});
     if(map.size<5)throw Error("未识别到中银香港客户买入/卖出牌价");
     state.hk.rates=map;fillSelects("hk");renderHkTable();
     setStatus("hk","✅ 实时抓取成功 · "+map.size+" 个币种");
