@@ -176,8 +176,8 @@ function calculateHk(){
 function renderBocTable(){
   const rows=[...state.boc.rates.values()].sort((a,b)=>(a.code||"").localeCompare(b.code||""));
   if(!rows.length){document.getElementById("bocTable").innerHTML='<div class="error">没有读取到中国银行牌价表。</div>';return}
-  let h='<div class="table-title">当前抓取的中国银行牌价</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>现汇买入</th><th>现钞买入</th><th>现汇卖出</th><th>现钞卖出</th><th>更新时间</th></tr></thead><tbody>';
-  for(const r of rows)h+='<tr><td>'+esc(r.code+" · "+r.name)+'</td><td>'+fmt(r.fxBuy)+'</td><td>'+fmt(r.cashBuy)+'</td><td>'+fmt(r.fxSell)+'</td><td>'+fmt(r.cashSell)+'</td><td>'+esc(r.updated||"")+'</td></tr>';
+  let h='<div class="table-title">当前抓取的中国银行牌价</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>现汇买入</th><th>现钞买入</th><th>现汇卖出</th><th>现钞卖出</th></tr></thead><tbody>';
+  for(const r of rows)h+='<tr><td>'+esc(r.code+" · "+r.name)+'</td><td>'+fmt(r.fxBuy)+'</td><td>'+fmt(r.cashBuy)+'</td><td>'+fmt(r.fxSell)+'</td><td>'+fmt(r.cashSell)+'</td></tr>';
   document.getElementById("bocTable").innerHTML=h+"</tbody></table></div>";
 }
 function renderHkTable(){
