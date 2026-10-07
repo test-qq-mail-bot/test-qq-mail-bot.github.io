@@ -43,8 +43,9 @@
 </article>
 
 <article class="bank">
-<div class="head"><div><div class="name">中银香港 · 港元牌价</div><div class="sub">客户卖出 / 客户买入；以港元为中间币种</div></div><a class="source" href="https://www.bochk.com/sc/investment/rates/hkdrates.html" target="_blank" rel="noopener">官方页面 ↗</a></div>
+<div class="head"><div><div class="name">中银香港 · 港元牌价</div><div class="sub">电汇 / 现钞；客户卖出 / 客户买入；以港元为中间币种</div></div><a id="hkSource" class="source" href="https://www.bochk.com/sc/investment/rates/hkdrates.html" target="_blank" rel="noopener">官方页面 ↗</a></div>
 <div class="body">
+<div class="modes"><button class="active" data-hk-mode="tt">电汇</button><button data-hk-mode="cash">现钞</button></div>
 <div class="fields">
 <div class="field"><label>金额</label><input id="hkAmount" class="amount" type="number" value="1000" min="0" step="any" inputmode="decimal"></div>
 <div></div><div></div>
@@ -66,12 +67,14 @@
 const JINA = "https://r.jina.ai/";
 const BOC_URL = "https://www.boc.cn/sourcedb/whpj/";
 const BOC_PAGES = Array.from({length:10},(_,i)=>i===0?BOC_URL:BOC_URL+"index_"+i+".html");
-const HK_MAIN = "https://www.bochk.com/sc/investment/rates/hkdrates.html";
-const HK_DATA = "https://www.bochk.com/whk/rates/exchangeRatesHKD/exchangeRatesHKD-input.action?lang=cn";
+const HK_TT_MAIN = "https://www.bochk.com/sc/investment/rates/hkdrates.html";
+const HK_TT_DATA = "https://www.bochk.com/whk/rates/exchangeRatesHKD/exchangeRatesHKD-input.action?lang=cn";
+const HK_CASH_MAIN = "https://www.bochk.com/sc/investment/rates/fxrates.html";
+const HK_CASH_DATA = "https://www.bochk.com/whk/rates/exchangeRatesForCurrency/exchangeRatesForCurrency-input.action?lang=cn";
 
 const state = {
   boc:{mode:"fx", rates:new Map(), updated:""},
-  hk:{rates:new Map(), updated:""}
+  hk:{mode:"tt", rates:new Map(), byMode:{tt:new Map(),cash:new Map()}, updated:{tt:"",cash:""}}
 };
 
 const bocNameToCode = {
@@ -155,7 +158,7 @@ function calculateHk(){
   else if(from!=="HKD"&&to!=="HKD"&&f!=null&&t!=null)result=amount*f/t;
   if(result==null){out.textContent="暂无可用牌价";note.textContent="该币种当前牌价缺失";return}
   out.textContent=fmt(result);
-  note.textContent=from+" → "+to+" · 经港元折算 · 客户买入/卖出方向自动处理";
+  note.textContent=from+" → "+to+" · 经港元折算 · "+(state.hk.mode==="tt"?"电汇":"现钞")+" · 客户买入/卖出方向自动处理";
 }
 
 function renderBocTable(){
@@ -168,7 +171,9 @@ function renderBocTable(){
 function renderHkTable(){
   const rows=[...state.hk.rates.values()].sort((a,b)=>a.code.localeCompare(b.code));
   if(!rows.length){document.getElementById("hkTable").innerHTML='<div class="error">没有读取到中银香港牌价表。</div>';return}
-  let h='<div class="table-title">当前抓取的中银香港牌价（每 1 外币兑港元）</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>客户卖出</th><th>客户买入</th></tr></thead><tbody>';
+  const modeName=state.hk.mode==="tt"?"电汇":"现钞";
+  const updated=state.hk.updated[state.hk.mode]||"";
+  let h='<div class="table-title">当前抓取的中银香港'+modeName+'牌价（每 1 外币兑港元）'+(updated?' · '+esc(updated):'')+'</div><div class="scroll"><table class="rates"><thead><tr><th>币种</th><th>客户卖出</th><th>客户买入</th></tr></thead><tbody>';
   for(const r of rows)h+='<tr><td>'+esc(r.code+" · "+r.name)+'</td><td>'+fmt(r.sell)+'</td><td>'+fmt(r.buy)+'</td></tr>';
   document.getElementById("hkTable").innerHTML=h+"</tbody></table></div>";
 }
@@ -199,37 +204,78 @@ async function fetchBoc(){
   }catch(e){console.error("[BOC]",e);setStatus("boc","实时抓取/解析失败："+e.message,true);document.getElementById("bocTable").innerHTML='<div class="error">中国银行实时数据处理失败：'+esc(e.message)+'。请点击“立即抓取”重试；如仍失败，再检查官方页面或实时转发服务。</div>'}
 }
 
+async function parseHkRatePage(url){
+  const r=await fetch(jina(url),{cache:"no-store"});
+  if(!r.ok)throw Error("HTTP "+r.status);
+  const markdown=await r.text();
+  const rows=parseMarkdownTable(markdown), map=new Map();
+  const hkNameToCode = {
+    "人民币(在岸)":"CNY","人民币(离岸)":"CNH","人民币":"CNY",
+    "美元":"USD","英镑":"GBP","日圆":"JPY","日元":"JPY","澳元":"AUD","纽元":"NZD","纽西兰元":"NZD",
+    "加元":"CAD","欧罗":"EUR","欧元":"EUR","瑞士法郎":"CHF","丹麦克郎":"DKK","丹麦克朗":"DKK",
+    "挪威克郎":"NOK","挪威克朗":"NOK","瑞典克郎":"SEK","瑞典克朗":"SEK",
+    "新加坡元":"SGD","泰国铢":"THB","文莱元":"BND","南非兰特":"ZAR",
+    "印尼盾":"IDR","印度卢比":"INR","韩国圜":"KRW","韩元":"KRW",
+    "澳门元":"MOP","菲律宾彼索":"PHP","菲律宾比索":"PHP","俄罗斯卢布":"RUB","新台币":"TWD"
+  };
+  for(const row of rows){
+    if(row.length<3)continue;
+    const rawName=textNorm(row[0]).replace(/\\*$/,"");
+    const code=/^[A-Z]{3}$/.test(rawName.toUpperCase())?rawName.toUpperCase():hkNameToCode[rawName];
+    const sell=num(row[1]),buy=num(row[2]);
+    if(code&&sell!=null&&buy!=null)map.set(code,{code,name:codeNames[code]||rawName,sell,buy});
+  }
+  if(!map.has("HKD"))map.set("HKD",{code:"HKD",name:"港币",sell:1,buy:1});
+  if(map.size<5)throw Error("未识别到足够的客户买入/卖出牌价");
+  const m=markdown.match(/资料更新于[^\\n]+/);
+  return {map,updated:m?textNorm(m[0]):""};
+}
+
 async function fetchHk(){
-  setStatus("hk","正在直接抓取中银香港官网（实时）…");
+  setStatus("hk","正在实时抓取中银香港：电汇 + 现钞…");
   try{
-    const urls=[HK_DATA,HK_MAIN];
-    let markdown="";
-    for(const u of urls){
-      try{const r=await fetch(jina(u),{cache:"no-store"});if(r.ok){markdown=await r.text();if(markdown.includes("Customer Buy")||markdown.includes("客户买入")||markdown.includes("客户买入价"))break}}catch(_){}
+    const [ttRes,cashRes]=await Promise.allSettled([
+      parseHkRatePage(HK_TT_DATA),
+      parseHkRatePage(HK_CASH_DATA)
+    ]);
+    if(ttRes.status!=="fulfilled"&&cashRes.status!=="fulfilled"){
+      throw Error("电汇和现钞两个页面均抓取失败");
     }
-    const rows=parseMarkdownTable(markdown), map=new Map();
-    const hkNameToCode = {
-      "人民币(在岸)":"CNY","人民币(离岸)":"CNH","人民币":"CNY",
-      "美元":"USD","英镑":"GBP","日圆":"JPY","日元":"JPY","澳元":"AUD","纽元":"NZD",
-      "加元":"CAD","欧罗":"EUR","欧元":"EUR","瑞士法郎":"CHF","丹麦克郎":"DKK","丹麦克朗":"DKK",
-      "挪威克郎":"NOK","挪威克朗":"NOK","瑞典克郎":"SEK","瑞典克朗":"SEK",
-      "新加坡元":"SGD","泰国铢":"THB","文莱元":"BND","南非兰特":"ZAR"
-    };
-    for(const row of rows){
-      if(row.length<3)continue;
-      const rawName=textNorm(row[0]).replace(/\\*$/,"");
-      const code = /^[A-Z]{3}$/.test(rawName.toUpperCase()) ? rawName.toUpperCase() : hkNameToCode[rawName];
-      const sell=num(row[1]),buy=num(row[2]);
-      if(code&&sell!=null&&buy!=null){
-        map.set(code,{code,name:codeNames[code]||rawName,sell,buy});
-      }
+    if(ttRes.status==="fulfilled"){
+      state.hk.byMode.tt=ttRes.value.map;
+      state.hk.updated.tt=ttRes.value.updated;
     }
-    // HKD 是该页面的基准货币，官网表格不会列出一行 HKD，因此计算器必须主动加入。
-    if(!map.has("HKD")) map.set("HKD",{code:"HKD",name:"港币",sell:1,buy:1});
-    if(map.size<5)throw Error("未识别到中银香港客户买入/卖出牌价");
-    state.hk.rates=map;fillSelects("hk");renderHkTable();
-    setStatus("hk","✅ 实时抓取成功 · "+map.size+" 个币种");
-  }catch(e){console.error("[BOCHK]",e);setStatus("hk","实时抓取/解析失败："+e.message,true);document.getElementById("hkTable").innerHTML='<div class="error">中银香港实时数据处理失败：'+esc(e.message)+'。请点击“立即抓取”重试；如仍失败，再检查官网结构或实时转发服务。</div>'}
+    if(cashRes.status==="fulfilled"){
+      state.hk.byMode.cash=cashRes.value.map;
+      state.hk.updated.cash=cashRes.value.updated;
+    }
+    const active=state.hk.byMode[state.hk.mode];
+    if(!active||active.size<5)throw Error("当前"+(state.hk.mode==="tt"?"电汇":"现钞")+"牌价没有可用数据");
+    state.hk.rates=active;
+    fillSelects("hk");renderHkTable();
+    document.getElementById("hkSource").href=state.hk.mode==="tt"?HK_TT_MAIN:HK_CASH_MAIN;
+    const ok=[];if(ttRes.status==="fulfilled")ok.push("电汇");if(cashRes.status==="fulfilled")ok.push("现钞");
+    setStatus("hk","✅ 实时抓取成功 · "+ok.join(" + ")+
+      (state.hk.updated[state.hk.mode]?" · "+state.hk.updated[state.hk.mode]:""));
+  }catch(e){
+    console.error("[BOCHK]",e);
+    setStatus("hk","实时抓取/解析失败："+e.message,true);
+    document.getElementById("hkTable").innerHTML='<div class="error">中银香港实时数据处理失败：'+esc(e.message)+'。请点击“立即抓取”重试。</div>';
+  }
+}
+
+function switchHkMode(mode){
+  state.hk.mode=mode;
+  document.querySelectorAll("[data-hk-mode]").forEach(x=>x.classList.toggle("active",x.dataset.hkMode===mode));
+  document.getElementById("hkSource").href=mode==="tt"?HK_TT_MAIN:HK_CASH_MAIN;
+  const active=state.hk.byMode[mode];
+  if(active&&active.size){
+    state.hk.rates=active;fillSelects("hk");renderHkTable();
+    setStatus("hk","✅ 已切换到中银香港"+(mode==="tt"?"电汇":"现钞")+
+      (state.hk.updated[mode]?" · "+state.hk.updated[mode]:""));
+  }else{
+    fetchHk();
+  }
 }
 
 function swap(type){const a=document.getElementById(type+"From"),b=document.getElementById(type+"To");const x=a.value;a.value=b.value;b.value=x;type==="boc"?calculateBoc():calculateHk()}
@@ -244,6 +290,7 @@ document.getElementById("hkTo").addEventListener("change",calculateHk);
 document.getElementById("bocSwap").onclick=()=>swap("boc");document.getElementById("hkSwap").onclick=()=>swap("hk");
 document.getElementById("bocReset").onclick=()=>reset("boc");document.getElementById("hkReset").onclick=()=>reset("hk");
 document.getElementById("bocRefresh").onclick=fetchBoc;document.getElementById("hkRefresh").onclick=fetchHk;
+document.querySelectorAll("[data-hk-mode]").forEach(btn=>btn.onclick=()=>switchHkMode(btn.dataset.hkMode));
 document.querySelectorAll("[data-boc-mode]").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("[data-boc-mode]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.boc.mode=btn.dataset.bocMode;calculateBoc()});
 (async function init(){
   document.getElementById("bocFrom").innerHTML='<option value="CNY">CNY · 人民币</option>';
