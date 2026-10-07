@@ -112,7 +112,7 @@ function fillSelects(type){
   for(const c of codes){const label=type==="boc"?(codeNames[c]||data.get(c).name||c):(data.get(c).name||codeNames[c]||c);addOption(a,c,label);addOption(b,c,label)}
   if(codes.includes(oldA))a.value=oldA;else a.value=type==="boc"?"CNY":"HKD";
   if(codes.includes(oldB))b.value=oldB;else b.value=type==="boc"?"USD":"CNY";
-  calculate(type);
+  type==="boc"?calculateBoc():calculateHk();
 }
 
 function bocRate(code,side,mode){
@@ -196,7 +196,7 @@ async function fetchBoc(){
     if(all.size<5)throw Error("抓取到的数据不足");
     state.boc.rates=all;state.boc.updated=latest;fillSelects("boc");renderBocTable();
     setStatus("boc","✅ 实时抓取成功 · "+all.size+" 个币种"+(latest?" · "+latest:""));
-  }catch(e){setStatus("boc","抓取失败："+e.message,true);document.getElementById("bocTable").innerHTML='<div class="error">中国银行实时抓取失败。可能是银行网站或实时转发服务暂时不可用；请点击“立即抓取”重试，或直接打开官方页面核对牌价。</div>'}
+  }catch(e){console.error("[BOC]",e);setStatus("boc","实时抓取/解析失败："+e.message,true);document.getElementById("bocTable").innerHTML='<div class="error">中国银行实时数据处理失败：'+esc(e.message)+'。请点击“立即抓取”重试；如仍失败，再检查官方页面或实时转发服务。</div>'}
 }
 
 async function fetchHk(){
@@ -218,7 +218,7 @@ async function fetchHk(){
     if(map.size<5)throw Error("未识别到中银香港客户买入/卖出牌价");
     state.hk.rates=map;fillSelects("hk");renderHkTable();
     setStatus("hk","✅ 实时抓取成功 · "+map.size+" 个币种");
-  }catch(e){setStatus("hk","抓取失败："+e.message,true);document.getElementById("hkTable").innerHTML='<div class="error">中银香港实时抓取失败。可能是官网结构变化或实时转发服务暂时不可用；请点击“立即抓取”重试。</div>'}
+  }catch(e){console.error("[BOCHK]",e);setStatus("hk","实时抓取/解析失败："+e.message,true);document.getElementById("hkTable").innerHTML='<div class="error">中银香港实时数据处理失败：'+esc(e.message)+'。请点击“立即抓取”重试；如仍失败，再检查官网结构或实时转发服务。</div>'}
 }
 
 function swap(type){const a=document.getElementById(type+"From"),b=document.getElementById(type+"To");const x=a.value;a.value=b.value;b.value=x;type==="boc"?calculateBoc():calculateHk()}
