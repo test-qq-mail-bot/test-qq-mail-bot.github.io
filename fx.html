@@ -364,8 +364,11 @@ function calculateComparison(){
   document.getElementById("bocFrom").innerHTML='<option value="CNY">CNY · 人民币</option>';
   document.getElementById("bocTo").innerHTML='<option value="USD">USD · 美元</option>';
   document.getElementById("hkFrom").innerHTML='<option value="HKD">HKD · 港币</option>';
-  document.getElementById("hkTo").innerHTML='<option value="CNY">CNY · 人民币</option>';\n  populateComparisonCurrencies();
-  await Promise.all([fetchBoc(),fetchHk()]);\n  populateComparisonCurrencies();\n  calculateComparison();
+  document.getElementById("hkTo").innerHTML='<option value="CNY">CNY · 人民币</option>';
+  populateComparisonCurrencies();
+  await Promise.all([fetchBoc(),fetchHk()]);
+  populateComparisonCurrencies();
+  calculateComparison();
   document.getElementById("lastSync").textContent="✅ 最近抓取："+new Date().toLocaleString("zh-CN");
 })();
 setInterval(async()=>{document.getElementById("lastSync").textContent="⟳ 正在自动刷新…";await Promise.all([fetchBoc(),fetchHk()]);document.getElementById("lastSync").textContent="✅ 最近抓取："+new Date().toLocaleString("zh-CN")},60000);
