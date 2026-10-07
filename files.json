@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-07T14:00:29.056167+00:00",
+  "generatedAt": "2026-10-07T14:09:51.604151+00:00",
   "files": [
-    {
-      "path": "fx.html",
-      "size": 33188
-    },
     {
       "path": "IP工具箱.html",
       "size": 86391
@@ -25,6 +21,10 @@
     {
       "path": "VictoriaLogs日志控制台.html",
       "size": 111892
+    },
+    {
+      "path": "银行汇率兑换计算器.html",
+      "size": 33188
     }
   ]
 }
