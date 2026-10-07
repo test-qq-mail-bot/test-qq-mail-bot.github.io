@@ -61,12 +61,12 @@
 </article>
 </section>
 <section class="compare">
-<div class="compare-head"><div><div class="compare-title">CNY 付款成本比较</div><div class="compare-sub">以人民币作为起点，比较中国银行直接购买目标外币，与中银香港先将人民币换成港币再购买目标外币，哪条路线实际需要的人民币更少。</div></div><div class="source">实时牌价</div></div>
+<div class="compare-head"><div><div class="compare-title">CNY 付款成本比较</div><div class="compare-sub">按你的实际资金路径比较：内地直接用 CNY 换目标外币；香港则把 CNY 原币直接转入中银香港账户（转入不换汇），再在中银香港用 CNY 换目标外币。不会把“人民币先换港币”当成真实步骤。</div></div><div class="source">实时牌价</div></div>
 <div class="compare-body">
 <div class="compare-inputs">
 <div class="field"><label>付款金额</label><input id="cmpAmount" class="amount" type="number" value="3000" min="0" step="any" inputmode="decimal"></div>
 <div class="field"><label>付款币种</label><select id="cmpCurrency" class="select"></select></div>
-<div class="field"><label>比较方式</label><select id="cmpMode" class="select"><option value="auto">使用当前两边模式</option><option value="wire">两边都按电汇/现汇</option><option value="cash">两边都按现钞</option></select></div>
+<div class="field"><label>比较方式</label><select id="cmpMode" class="select"><option value="wire" selected>账户付款：现汇 vs 电汇（推荐）</option><option value="auto">使用当前两边模式</option><option value="cash">两边都按现钞</option></select></div>
 </div>
 <div class="compare-actions"><button id="cmpRun" class="btn primary">计算哪个更省</button></div>
 <div id="cmpResult" class="compare-empty"><div class="loading">等待实时牌价…</div></div>
@@ -345,18 +345,21 @@ function calculateComparison(){
   const tr=hm.get(target);
   const cnyToHkd=cny?.buy;
   const targetSell=tr?.sell;
-  const hkCny=(target==="HKD")?amount:(cnyToHkd&&targetSell?amount*targetSell/cnyToHkd:null);
+  // 你的真实资金路径：CNY 原币转入中银香港，不做 CNY→HKD 换汇。
+  // 进入中银香港后，用 CNY 购买目标币种；因为该官方页面按“外币兑港元”报价，
+  // 所以 CNY→目标外币的实际所需 CNY 成本按 CNY 买入价与目标币卖出价交叉计算。
+  const hkCny=target==="CNY"?amount:(target==="HKD"?(cnyToHkd?amount/cnyToHkd:null):(cnyToHkd&&targetSell?amount*targetSell/cnyToHkd:null));
 
   if(bocCny==null&&hkCny==null){box.innerHTML='<div class="error">目前没有足够的实时牌价来比较 '+esc(target)+'。</div>';return}
 
   const available=[];
   if(bocCny!=null)available.push({name:"中国银行",cost:bocCny,detail:target==="CNY"?"人民币无需换汇":("CNY → "+target+" · "+(bocMode==="cash"?"现钞卖出价":"现汇卖出价")+" "+fmt(bocSell/100,8)+" CNY/"+target)});
-  if(hkCny!=null)available.push({name:"中银香港",cost:hkCny,detail:target==="HKD"?"人民币 → 港币":("CNY → HKD → "+target+" · "+(hkMode==="cash"?"现钞":"电汇")+"；CNY客户买入 "+fmt(cnyToHkd,8)+" HKD/CNY · "+target+"客户卖出 "+fmt(targetSell,8)+" HKD/"+target)});
+  if(hkCny!=null)available.push({name:"中银香港",cost:hkCny,detail:target==="CNY"?"人民币无需换汇":(target==="HKD"?("CNY → HKD · 中银香港"+(hkMode==="cash"?"现钞":"电汇")+"客户买入价 "+fmt(cnyToHkd,8)+" HKD/CNY"):("CNY 原币到账 → 中银香港直接换 "+target+" · "+(hkMode==="cash"?"现钞":"电汇")+"；CNY客户买入 "+fmt(cnyToHkd,8)+" HKD/CNY · "+target+"客户卖出 "+fmt(targetSell,8)+" HKD/"+target))});
   available.sort((a,b)=>a.cost-b.cost);
   const best=available[0],worst=available[available.length-1];
   const diff=available.length>1?worst.cost-best.cost:null;
   const pct=available.length>1?diff/worst.cost*100:null;
-  const modeText=mode==="auto"?"按当前中国银行现汇/现钞与中银香港当前电汇/现钞模式":mode==="wire"?"两边统一按现汇/电汇":"两边统一按现钞";
+  const modeText=mode==="auto"?"按当前中国银行现汇/现钞与中银香港当前电汇/现钞模式":mode==="wire"?"账户付款：中行现汇 vs 中银香港电汇，CNY 原币转入香港不计换汇损耗":"现金付款：两边都按现钞";
   box.innerHTML='<div class="winner"><div class="winner-title">付款金额：'+fmt(amount)+' '+esc(target)+'</div><div class="winner-main">🏆 '+best.name+' 更省</div><div class="winner-diff">需要约 <b>'+fmt(best.cost,2)+' CNY</b>'+(diff!=null?'，比另一条路线少 <b>'+fmt(diff,2)+' CNY</b>（约 '+fmt(pct,2)+'%）':'')+'。<br><span class="muted">'+esc(modeText)+'</span></div></div>'+
     '<div class="compare-grid">'+available.map((x,i)=>'<div class="compare-card '+(i===0?"best":"")+'"><div class="compare-card-title">'+esc(x.name)+(i===0?' · 更省':'')+'</div><div class="compare-cost">'+fmt(x.cost,2)+' CNY</div><div class="compare-detail">'+esc(x.detail)+'</div></div>').join("")+'</div>';
 }
